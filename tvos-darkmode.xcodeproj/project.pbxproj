@@ -1,0 +1,292 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7F0A5BB51D123A0B00128EFA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F0A5BB41D123A0B00128EFA /* AppDelegate.swift */; };
+		7F0A5BB71D123A0B00128EFA /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F0A5BB61D123A0B00128EFA /* ViewController.swift */; };
+		7F0A5BBA1D123A0B00128EFA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7F0A5BB81D123A0B00128EFA /* Main.storyboard */; };
+		7F0A5BBC1D123A0B00128EFA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7F0A5BBB1D123A0B00128EFA /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		7F0A5BB11D123A0B00128EFA /* tvos-darkmode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "tvos-darkmode.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7F0A5BB41D123A0B00128EFA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		7F0A5BB61D123A0B00128EFA /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		7F0A5BB91D123A0B00128EFA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		7F0A5BBB1D123A0B00128EFA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		7F0A5BBD1D123A0B00128EFA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7F0A5BAE1D123A0B00128EFA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		7F0A5BA81D123A0B00128EFA = {
+			isa = PBXGroup;
+			children = (
+				7F0A5BB31D123A0B00128EFA /* tvos-darkmode */,
+				7F0A5BB21D123A0B00128EFA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7F0A5BB21D123A0B00128EFA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7F0A5BB11D123A0B00128EFA /* tvos-darkmode.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7F0A5BB31D123A0B00128EFA /* tvos-darkmode */ = {
+			isa = PBXGroup;
+			children = (
+				7F0A5BB41D123A0B00128EFA /* AppDelegate.swift */,
+				7F0A5BB61D123A0B00128EFA /* ViewController.swift */,
+				7F0A5BB81D123A0B00128EFA /* Main.storyboard */,
+				7F0A5BBB1D123A0B00128EFA /* Assets.xcassets */,
+				7F0A5BBD1D123A0B00128EFA /* Info.plist */,
+			);
+			path = "tvos-darkmode";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7F0A5BB01D123A0B00128EFA /* tvos-darkmode */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7F0A5BC01D123A0B00128EFA /* Build configuration list for PBXNativeTarget "tvos-darkmode" */;
+			buildPhases = (
+				7F0A5BAD1D123A0B00128EFA /* Sources */,
+				7F0A5BAE1D123A0B00128EFA /* Frameworks */,
+				7F0A5BAF1D123A0B00128EFA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "tvos-darkmode";
+			productName = "tvos-darkmode";
+			productReference = 7F0A5BB11D123A0B00128EFA /* tvos-darkmode.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7F0A5BA91D123A0B00128EFA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0800;
+				LastUpgradeCheck = 0800;
+				ORGANIZATIONNAME = GPJ;
+				TargetAttributes = {
+					7F0A5BB01D123A0B00128EFA = {
+						CreatedOnToolsVersion = 8.0;
+						DevelopmentTeam = 53AF9EMAN4;
+						DevelopmentTeamName = "Gareth Jones";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 7F0A5BAC1D123A0B00128EFA /* Build configuration list for PBXProject "tvos-darkmode" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 7F0A5BA81D123A0B00128EFA;
+			productRefGroup = 7F0A5BB21D123A0B00128EFA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7F0A5BB01D123A0B00128EFA /* tvos-darkmode */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7F0A5BAF1D123A0B00128EFA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7F0A5BBC1D123A0B00128EFA /* Assets.xcassets in Resources */,
+				7F0A5BBA1D123A0B00128EFA /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7F0A5BAD1D123A0B00128EFA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7F0A5BB71D123A0B00128EFA /* ViewController.swift in Sources */,
+				7F0A5BB51D123A0B00128EFA /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		7F0A5BB81D123A0B00128EFA /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				7F0A5BB91D123A0B00128EFA /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		7F0A5BBE1D123A0B00128EFA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = appletvos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		7F0A5BBF1D123A0B00128EFA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = appletvos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 10.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		7F0A5BC11D123A0B00128EFA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				INFOPLIST_FILE = "tvos-darkmode/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.gpj.tvos-darkmode";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Debug;
+		};
+		7F0A5BC21D123A0B00128EFA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				INFOPLIST_FILE = "tvos-darkmode/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.gpj.tvos-darkmode";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7F0A5BAC1D123A0B00128EFA /* Build configuration list for PBXProject "tvos-darkmode" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7F0A5BBE1D123A0B00128EFA /* Debug */,
+				7F0A5BBF1D123A0B00128EFA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7F0A5BC01D123A0B00128EFA /* Build configuration list for PBXNativeTarget "tvos-darkmode" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7F0A5BC11D123A0B00128EFA /* Debug */,
+				7F0A5BC21D123A0B00128EFA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7F0A5BA91D123A0B00128EFA /* Project object */;
+}
