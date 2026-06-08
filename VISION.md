@@ -43,3 +43,6 @@ tracking, or device data collection behavior.
 - Unrelated feature expansion
 - Network dependencies
 - Appearance changes without a verification note
+
+This list is a roadmap guardrail, not a permanent rule.
+Strong user demand and strong technical rationale can change it.
