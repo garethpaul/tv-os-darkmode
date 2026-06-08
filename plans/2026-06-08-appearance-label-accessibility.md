@@ -22,4 +22,5 @@ identifier.
 - `make test`
 - `make build`
 - `make verify`
+- `make check`
 - `git diff --check`

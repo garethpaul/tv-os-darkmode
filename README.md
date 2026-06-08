@@ -42,11 +42,11 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 ## Running or Using the Project
 
 - Open `tvos-darkmode.xcodeproj` in Xcode, choose the app or sample scheme, and run it on the matching simulator/device.
-- Run `make verify` for static repository checks. The `build` step runs `xcodebuild` only on hosts where it is installed.
+- Run `make check` for static repository checks. The `build` step runs `xcodebuild` only on hosts where it is installed.
 
 ## Testing and Verification
 
-- `make verify` runs tvOS project, plist, asset, appearance-state, and
+- `make check` runs tvOS project, plist, asset, appearance-state, and
   appearance-label accessibility contract checks.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination on macOS
 
