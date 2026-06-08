@@ -58,6 +58,22 @@ def check_visible_appearance_state():
         "ViewController must configure the appearance label on load",
     )
     require(
+        "appearanceLabel.numberOfLines = 0" in view_controller,
+        "appearance label must wrap instead of truncating longer states",
+    )
+    require(
+        "appearanceLabel.lineBreakMode = .byWordWrapping" in view_controller,
+        "appearance label must wrap on word boundaries",
+    )
+    require(
+        'appearanceLabel.accessibilityIdentifier = "appearance-state-label"' in view_controller,
+        "appearance label must have a stable accessibility identifier",
+    )
+    require(
+        "appearanceLabel.isAccessibilityElement = true" in view_controller,
+        "appearance label must be exposed as an accessibility element",
+    )
+    require(
         view_controller.count("updateAppearance(for: traitCollection)") >= 2,
         "appearance state must be applied on load and after trait changes",
     )
@@ -72,11 +88,12 @@ def check_visible_appearance_state():
     require(
         re.search(
             r"private func setAppearance\(text: String, backgroundColor: UIColor, textColor: UIColor\).*?"
-            r"appearanceLabel\.text = text.*?view\.backgroundColor = backgroundColor",
+            r"appearanceLabel\.text = text.*?appearanceLabel\.accessibilityLabel = text.*?"
+            r"view\.backgroundColor = backgroundColor",
             view_controller,
             re.DOTALL,
         ),
-        "appearance updates must change both label text and background color",
+        "appearance updates must change label text, accessibility text, and background color",
     )
 
 

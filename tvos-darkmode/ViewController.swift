@@ -33,6 +33,10 @@ class ViewController: UIViewController {
     private func configureAppearanceLabel() {
         appearanceLabel.translatesAutoresizingMaskIntoConstraints = false
         appearanceLabel.textAlignment = .center
+        appearanceLabel.numberOfLines = 0
+        appearanceLabel.lineBreakMode = .byWordWrapping
+        appearanceLabel.accessibilityIdentifier = "appearance-state-label"
+        appearanceLabel.isAccessibilityElement = true
         appearanceLabel.font = UIFont.boldSystemFont(ofSize: 54.0)
         view.addSubview(appearanceLabel)
 
@@ -70,6 +74,7 @@ class ViewController: UIViewController {
 
     private func setAppearance(text: String, backgroundColor: UIColor, textColor: UIColor) {
         appearanceLabel.text = text
+        appearanceLabel.accessibilityLabel = text
         appearanceLabel.textColor = textColor
         view.backgroundColor = backgroundColor
     }
