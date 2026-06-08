@@ -6,9 +6,12 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    private let appearanceLabel = UILabel()
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        configureAppearanceLabel()
+        updateAppearance(for: traitCollection)
     }
 
     override func didReceiveMemoryWarning() {
@@ -23,14 +26,51 @@ class ViewController: UIViewController {
         else { return }
         
         guard(traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle) else { return }
-        
-        if traitCollection.userInterfaceStyle == .dark {
-            // dark interface
-            print("dark")
-        } else {
-            // light interface
-            print("light")
+
+        updateAppearance(for: traitCollection)
+    }
+
+    private func configureAppearanceLabel() {
+        appearanceLabel.translatesAutoresizingMaskIntoConstraints = false
+        appearanceLabel.textAlignment = .center
+        appearanceLabel.font = UIFont.boldSystemFont(ofSize: 54.0)
+        view.addSubview(appearanceLabel)
+
+        NSLayoutConstraint.activate([
+            appearanceLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            appearanceLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            appearanceLabel.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.8)
+        ])
+    }
+
+    private func updateAppearance(for traitCollection: UITraitCollection) {
+        guard(traitCollection.responds(to: #selector(getter:UITraitCollection.userInterfaceStyle)))
+        else {
+            setAppearance(text: "Appearance Unavailable",
+                          backgroundColor: UIColor.black,
+                          textColor: UIColor.white)
+            return
+        }
+
+        switch traitCollection.userInterfaceStyle {
+        case .dark:
+            setAppearance(text: "Dark Mode",
+                          backgroundColor: UIColor.black,
+                          textColor: UIColor.white)
+        case .light:
+            setAppearance(text: "Light Mode",
+                          backgroundColor: UIColor.white,
+                          textColor: UIColor.black)
+        default:
+            setAppearance(text: "Automatic Mode",
+                          backgroundColor: UIColor.darkGray,
+                          textColor: UIColor.white)
         }
     }
-}
 
+    private func setAppearance(text: String, backgroundColor: UIColor, textColor: UIColor) {
+        appearanceLabel.text = text
+        appearanceLabel.textColor = textColor
+        view.backgroundColor = backgroundColor
+    }
+}

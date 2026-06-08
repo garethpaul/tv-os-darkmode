@@ -17,11 +17,12 @@ Priority:
 - Keep light/dark behavior easy to inspect
 - Avoid adding unrelated app UI
 - Treat the project as a minimal sample
+- Keep the visible appearance state in sync with trait changes
 
 Next priorities:
 
 - Add a README with setup and expected console output
-- Add a visible UI state change instead of only printing
+- Add device or simulator screenshots for light and dark appearances
 - Document supported tvOS and Xcode versions
 - Add a manual verification checklist for appearance changes
 
