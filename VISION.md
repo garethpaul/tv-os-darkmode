@@ -38,7 +38,6 @@ Canonical security policy and reporting:
 
 - [`SECURITY.md`](SECURITY.md)
 
-
 This sample should remain local and UI-only. It should not introduce network,
 tracking, or device data collection behavior.
 
