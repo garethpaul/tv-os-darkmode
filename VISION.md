@@ -37,7 +37,7 @@ Contribution rules:
 This sample should remain local and UI-only. It should not introduce network,
 tracking, or device data collection behavior.
 
-## What We Will Not Merge For Now
+## What We Will Not Merge (For Now)
 
 - Hidden analytics
 - Unrelated feature expansion
