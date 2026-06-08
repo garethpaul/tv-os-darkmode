@@ -12,6 +12,11 @@ This README is based on the checked-in source, manifests, scripts, and repositor
 ## Repository Contents
 
 - `SECURITY.md` - security reporting and disclosure guidance
+- `CHANGES.md` - maintenance history for tvOS appearance checks
+- `Makefile` - local verification entry points
+- `docs/plans` - completed maintenance plans for the current baseline
+- `plans` - historical implementation notes
+- `scripts` - static tvOS contract validators
 - `tvos-darkmode` - source or example code
 - `tvos-darkmode.xcodeproj` - Xcode project file
 - `VISION.md` - project direction and maintenance guardrails
@@ -48,6 +53,7 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 - `make check` runs tvOS project, plist, asset, appearance-state, and
   appearance-label accessibility contract checks.
+- Static checks also require completed canonical plans under `docs/plans`.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination on macOS
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
@@ -66,6 +72,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - This looks like an Apple platform project or sample. Xcode, Swift, CocoaPods, and deployment target versions may need to match the original project era.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
+- See `docs/plans/2026-06-08-tvos-darkmode-baseline.md` for the canonical
+  appearance-state baseline.
 
 ## Contributing
 

@@ -10,6 +10,8 @@ import xml.etree.ElementTree as ET
 
 
 ROOT = Path(__file__).resolve().parents[1]
+DOCS_PLANS = ROOT / "docs" / "plans"
+CANONICAL_PLAN = DOCS_PLANS / "2026-06-08-tvos-darkmode-baseline.md"
 
 
 def fail(message):
@@ -24,6 +26,18 @@ def read_text(relative_path):
 def require(condition, message):
     if not condition:
         raise AssertionError(message)
+
+
+def check_docs_plans():
+    require(CANONICAL_PLAN.exists(), "docs/plans/2026-06-08-tvos-darkmode-baseline.md is missing")
+    plans = sorted(DOCS_PLANS.glob("*.md")) if DOCS_PLANS.exists() else []
+    require(plans, "docs/plans must contain at least one completed plan")
+    for plan_path in plans:
+        plan = plan_path.read_text(encoding="utf-8")
+        require(
+            "Status: Completed" in plan and "make check" in plan,
+            f"{plan_path.relative_to(ROOT)} must record completed status and make check verification",
+        )
 
 
 def check_project_files_parse():
@@ -99,6 +113,7 @@ def check_visible_appearance_state():
 
 def main():
     checks = [
+        check_docs_plans,
         check_project_files_parse,
         check_xcode_project_contracts,
         check_visible_appearance_state,
