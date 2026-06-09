@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DOCS_PLANS = ROOT / "docs" / "plans"
 CANONICAL_PLAN = DOCS_PLANS / "2026-06-08-tvos-darkmode-baseline.md"
 ROOT_IDENTIFIER_PLAN = DOCS_PLANS / "2026-06-09-root-view-identifier.md"
+APP_DELEGATE_LAUNCH_PLAN = DOCS_PLANS / "2026-06-09-app-delegate-launch-options.md"
 
 
 def fail(message):
@@ -32,6 +33,7 @@ def require(condition, message):
 def check_docs_plans():
     require(CANONICAL_PLAN.exists(), "docs/plans/2026-06-08-tvos-darkmode-baseline.md is missing")
     require(ROOT_IDENTIFIER_PLAN.exists(), "docs/plans/2026-06-09-root-view-identifier.md is missing")
+    require(APP_DELEGATE_LAUNCH_PLAN.exists(), "docs/plans/2026-06-09-app-delegate-launch-options.md is missing")
     plans = sorted(DOCS_PLANS.glob("*.md")) if DOCS_PLANS.exists() else []
     require(plans, "docs/plans must contain at least one completed plan")
     for plan_path in plans:
@@ -60,6 +62,18 @@ def check_xcode_project_contracts():
     require("TARGETED_DEVICE_FAMILY = 3;" in project, "project must remain tvOS-only")
     require("SWIFT_VERSION = 3.0;" in project, "legacy Swift version must stay explicit")
     require("ViewController.swift in Sources" in project, "ViewController must remain compiled")
+
+
+def check_app_delegate_contracts():
+    app_delegate = read_text("tvos-darkmode/AppDelegate.swift")
+    require(
+        "[UIApplicationLaunchOptionsKey: Any]?) -> Bool" in app_delegate,
+        "AppDelegate launch callback must use the Swift 3 launch-options signature",
+    )
+    require(
+        "[NSObject: AnyObject]?) -> Bool" not in app_delegate,
+        "AppDelegate launch callback must not use the pre-Swift-3 launch-options signature",
+    )
 
 
 def check_visible_appearance_state():
@@ -185,6 +199,7 @@ def main():
         check_docs_plans,
         check_project_files_parse,
         check_xcode_project_contracts,
+        check_app_delegate_contracts,
         check_visible_appearance_state,
         check_manual_verification_docs,
     ]

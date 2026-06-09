@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Updated the app delegate launch callback to the Swift 3 launch-options
+  signature and added static contract coverage.
 - Marked the appearance label as explicitly non-interactive so it remains a
   display-only status view.
 - Extended static tvOS contracts to preserve the display-only label setting.

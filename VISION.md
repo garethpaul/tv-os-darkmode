@@ -26,6 +26,7 @@ Priority:
 - Keep appearance text scaled within the tvOS viewport
 - Keep appearance text bounded inside the tvOS viewport
 - Keep foreground and background appearance colors paired explicitly
+- Keep app delegate signatures aligned with the checked-in Swift version
 - Keep completed maintenance plans under `docs/plans`
 
 Next priorities:
@@ -56,6 +57,7 @@ tracking, or device data collection behavior.
 - Unrelated feature expansion
 - Network dependencies
 - Appearance labels that can overflow the viewport
+- Pre-Swift-3 delegate signatures in Swift 3 project code
 - Appearance changes without a verification note
 
 This list is a roadmap guardrail, not a permanent rule.
