@@ -12,6 +12,7 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 DOCS_PLANS = ROOT / "docs" / "plans"
 CANONICAL_PLAN = DOCS_PLANS / "2026-06-08-tvos-darkmode-baseline.md"
+ROOT_IDENTIFIER_PLAN = DOCS_PLANS / "2026-06-09-root-view-identifier.md"
 
 
 def fail(message):
@@ -30,6 +31,7 @@ def require(condition, message):
 
 def check_docs_plans():
     require(CANONICAL_PLAN.exists(), "docs/plans/2026-06-08-tvos-darkmode-baseline.md is missing")
+    require(ROOT_IDENTIFIER_PLAN.exists(), "docs/plans/2026-06-09-root-view-identifier.md is missing")
     plans = sorted(DOCS_PLANS.glob("*.md")) if DOCS_PLANS.exists() else []
     require(plans, "docs/plans must contain at least one completed plan")
     for plan_path in plans:
@@ -66,6 +68,10 @@ def check_visible_appearance_state():
     require(
         "private let appearanceLabel = UILabel()" in view_controller,
         "ViewController must own a visible appearance label",
+    )
+    require(
+        'view.accessibilityIdentifier = "appearance-state-root-view"' in view_controller,
+        "root appearance view must have a stable accessibility identifier",
     )
     require(
         "configureAppearanceLabel()" in view_controller,

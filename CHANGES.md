@@ -2,6 +2,9 @@
 
 ## 2026-06-09
 
+- Added a stable accessibility identifier to the root appearance view for
+  future simulator/UI verification.
+- Extended static tvOS contracts to preserve the root view identifier.
 - Added an accessibility hint to the appearance label and extended static tvOS
   contracts to preserve it.
 - Bounded the appearance label height as well as width inside the tvOS

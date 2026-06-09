@@ -10,6 +10,7 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.accessibilityIdentifier = "appearance-state-root-view"
         configureAppearanceLabel()
         updateAppearance(for: traitCollection)
     }
