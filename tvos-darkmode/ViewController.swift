@@ -40,6 +40,7 @@ class ViewController: UIViewController {
         appearanceLabel.accessibilityIdentifier = "appearance-state-label"
         appearanceLabel.isAccessibilityElement = true
         appearanceLabel.accessibilityTraits = UIAccessibilityTraitStaticText
+        appearanceLabel.accessibilityHint = "Shows the current tvOS appearance mode"
         appearanceLabel.font = UIFont.boldSystemFont(ofSize: 54.0)
         view.addSubview(appearanceLabel)
 

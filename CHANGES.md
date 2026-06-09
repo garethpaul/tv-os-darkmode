@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Added an accessibility hint to the appearance label and extended static tvOS
+  contracts to preserve it.
 - Bounded the appearance label height as well as width inside the tvOS
   viewport.
 - Extended static tvOS contracts to preserve the label layout bounds.

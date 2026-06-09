@@ -108,6 +108,10 @@ def check_visible_appearance_state():
         "appearance label must identify itself as static text for assistive technologies",
     )
     require(
+        'appearanceLabel.accessibilityHint = "Shows the current tvOS appearance mode"' in view_controller,
+        "appearance label must describe its appearance-state purpose to assistive technologies",
+    )
+    require(
         view_controller.count("updateAppearance(for: traitCollection)") >= 2,
         "appearance state must be applied on load and after trait changes",
     )
