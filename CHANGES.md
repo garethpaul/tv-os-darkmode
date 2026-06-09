@@ -2,6 +2,9 @@
 
 ## 2026-06-09
 
+- Marked the appearance label as explicitly non-interactive so it remains a
+  display-only status view.
+- Extended static tvOS contracts to preserve the display-only label setting.
 - Added a stable accessibility identifier to the root appearance view for
   future simulator/UI verification.
 - Extended static tvOS contracts to preserve the root view identifier.

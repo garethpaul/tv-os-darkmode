@@ -110,6 +110,10 @@ def check_visible_appearance_state():
         "appearance label must be exposed as an accessibility element",
     )
     require(
+        "appearanceLabel.isUserInteractionEnabled = false" in view_controller,
+        "appearance label must remain a display-only, non-interactive view",
+    )
+    require(
         "appearanceLabel.accessibilityTraits = UIAccessibilityTraitStaticText" in view_controller,
         "appearance label must identify itself as static text for assistive technologies",
     )

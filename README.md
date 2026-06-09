@@ -53,7 +53,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 - `make check` runs tvOS project, plist, asset, appearance-state, and
   appearance-label accessibility, static-text trait, scaling, bounded-layout,
-  accessibility-hint, root-view identifier, and contrast contract checks.
+  accessibility-hint, display-only, root-view identifier, and contrast
+  contract checks.
 - Static checks also require completed canonical plans under `docs/plans`.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination on macOS
 
@@ -98,6 +99,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   label accessibility-hint guard.
 - See `docs/plans/2026-06-09-root-view-identifier.md` for the root appearance
   view automation identifier guard.
+- See `docs/plans/2026-06-09-appearance-label-display-only.md` for the
+  display-only appearance label guard.
 
 ## Contributing
 

@@ -20,6 +20,7 @@ Priority:
 - Keep the visible appearance state in sync with trait changes
 - Keep the appearance state readable and accessible
 - Keep appearance labels identifiable as static text to assistive technologies
+- Keep appearance labels display-only and non-interactive
 - Keep appearance labels described for assistive technologies
 - Keep the root appearance view identifiable for simulator/UI verification
 - Keep appearance text scaled within the tvOS viewport
