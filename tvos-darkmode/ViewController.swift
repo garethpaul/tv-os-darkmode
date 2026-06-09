@@ -35,6 +35,8 @@ class ViewController: UIViewController {
         appearanceLabel.textAlignment = .center
         appearanceLabel.numberOfLines = 0
         appearanceLabel.lineBreakMode = .byWordWrapping
+        appearanceLabel.adjustsFontSizeToFitWidth = true
+        appearanceLabel.minimumScaleFactor = 0.6
         appearanceLabel.accessibilityIdentifier = "appearance-state-label"
         appearanceLabel.isAccessibilityElement = true
         appearanceLabel.font = UIFont.boldSystemFont(ofSize: 54.0)

@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-09
+
+- Enabled appearance-label font scaling for longer runtime states.
+- Extended static tvOS contracts to require the scaling guard.
+
 ## 2026-06-08
 
 - Added static contrast coverage for light, dark, and fallback appearance

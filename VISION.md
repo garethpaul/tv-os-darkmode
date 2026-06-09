@@ -19,6 +19,7 @@ Priority:
 - Treat the project as a minimal sample
 - Keep the visible appearance state in sync with trait changes
 - Keep the appearance state readable and accessible
+- Keep appearance text scaled within the tvOS viewport
 - Keep foreground and background appearance colors paired explicitly
 - Keep completed maintenance plans under `docs/plans`
 
@@ -49,6 +50,7 @@ tracking, or device data collection behavior.
 - Hidden analytics
 - Unrelated feature expansion
 - Network dependencies
+- Appearance labels that can overflow the viewport
 - Appearance changes without a verification note
 
 This list is a roadmap guardrail, not a permanent rule.

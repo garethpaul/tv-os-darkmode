@@ -80,6 +80,14 @@ def check_visible_appearance_state():
         "appearance label must wrap on word boundaries",
     )
     require(
+        "appearanceLabel.adjustsFontSizeToFitWidth = true" in view_controller,
+        "appearance label must scale down before overflowing the viewport",
+    )
+    require(
+        "appearanceLabel.minimumScaleFactor = 0.6" in view_controller,
+        "appearance label must keep a readable minimum scale factor",
+    )
+    require(
         'appearanceLabel.accessibilityIdentifier = "appearance-state-label"' in view_controller,
         "appearance label must have a stable accessibility identifier",
     )
