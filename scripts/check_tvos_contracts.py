@@ -99,15 +99,36 @@ def check_visible_appearance_state():
         all(fragment in view_controller for fragment in ["case .dark:", "case .light:", "default:"]),
         "appearance update must handle dark, light, and fallback styles",
     )
+    for fragment, description in [
+        (
+            'setAppearance(text: "Dark Mode",\n'
+            '                          backgroundColor: UIColor.black,\n'
+            '                          textColor: UIColor.white)',
+            "dark mode must use white text on black",
+        ),
+        (
+            'setAppearance(text: "Light Mode",\n'
+            '                          backgroundColor: UIColor.white,\n'
+            '                          textColor: UIColor.black)',
+            "light mode must use black text on white",
+        ),
+        (
+            'setAppearance(text: "Automatic Mode",\n'
+            '                          backgroundColor: UIColor.darkGray,\n'
+            '                          textColor: UIColor.white)',
+            "fallback mode must use white text on dark gray",
+        ),
+    ]:
+        require(fragment in view_controller, description)
     require(
         re.search(
             r"private func setAppearance\(text: String, backgroundColor: UIColor, textColor: UIColor\).*?"
             r"appearanceLabel\.text = text.*?appearanceLabel\.accessibilityLabel = text.*?"
-            r"view\.backgroundColor = backgroundColor",
+            r"appearanceLabel\.textColor = textColor.*?view\.backgroundColor = backgroundColor",
             view_controller,
             re.DOTALL,
         ),
-        "appearance updates must change label text, accessibility text, and background color",
+        "appearance updates must change label text, accessibility text, text color, and background color",
     )
 
 

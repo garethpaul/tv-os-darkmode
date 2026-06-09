@@ -52,7 +52,7 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 ## Testing and Verification
 
 - `make check` runs tvOS project, plist, asset, appearance-state, and
-  appearance-label accessibility contract checks.
+  appearance-label accessibility and contrast contract checks.
 - Static checks also require completed canonical plans under `docs/plans`.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination on macOS
 
@@ -85,6 +85,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   appearance-state baseline.
 - See `docs/plans/2026-06-08-manual-appearance-verification.md` for the manual
   light/dark verification checklist.
+- See `docs/plans/2026-06-08-appearance-contrast-contract.md` for the
+  foreground/background appearance contrast guard.
 
 ## Contributing
 

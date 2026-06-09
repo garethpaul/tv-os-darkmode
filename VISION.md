@@ -19,6 +19,7 @@ Priority:
 - Treat the project as a minimal sample
 - Keep the visible appearance state in sync with trait changes
 - Keep the appearance state readable and accessible
+- Keep foreground and background appearance colors paired explicitly
 - Keep completed maintenance plans under `docs/plans`
 
 Next priorities:

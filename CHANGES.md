@@ -2,6 +2,9 @@
 
 ## 2026-06-08
 
+- Added static contrast coverage for light, dark, and fallback appearance
+  states.
+- Ignored Python bytecode caches produced by local checker syntax validation.
 - Added a README manual appearance verification checklist and static coverage
   to keep light/dark behavior checks discoverable.
 - Made the appearance-state label wrap and expose stable accessibility text.
