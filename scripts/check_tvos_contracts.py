@@ -111,12 +111,27 @@ def check_visible_appearance_state():
     )
 
 
+def check_manual_verification_docs():
+    readme = read_text("README.md")
+    for fragment in [
+        "### Manual Appearance Verification",
+        "Light appearance",
+        "`Light Mode`",
+        "Dark appearance",
+        "`Dark Mode`",
+        "`Appearance Unavailable`",
+        "docs/plans/2026-06-08-manual-appearance-verification.md",
+    ]:
+        require(fragment in readme, f"README manual verification is missing: {fragment}")
+
+
 def main():
     checks = [
         check_docs_plans,
         check_project_files_parse,
         check_xcode_project_contracts,
         check_visible_appearance_state,
+        check_manual_verification_docs,
     ]
     try:
         for check in checks:

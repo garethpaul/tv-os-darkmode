@@ -56,6 +56,15 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - Static checks also require completed canonical plans under `docs/plans`.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination on macOS
 
+### Manual Appearance Verification
+
+- Run the app on a tvOS simulator or device in Light appearance and confirm the
+  centered label reads `Light Mode` with a white background.
+- Switch the simulator or device to Dark appearance, then confirm the centered
+  label reads `Dark Mode` with a black background.
+- If the runtime does not expose `userInterfaceStyle`, confirm the fallback
+  label reads `Appearance Unavailable`.
+
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
 ## Configuration and Secrets
@@ -74,6 +83,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - See `VISION.md` for project direction and contribution guardrails.
 - See `docs/plans/2026-06-08-tvos-darkmode-baseline.md` for the canonical
   appearance-state baseline.
+- See `docs/plans/2026-06-08-manual-appearance-verification.md` for the manual
+  light/dark verification checklist.
 
 ## Contributing
 

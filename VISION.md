@@ -25,7 +25,7 @@ Next priorities:
 
 - Add device or simulator screenshots for light and dark appearances
 - Document supported tvOS and Xcode versions
-- Add a manual verification checklist for appearance changes
+- Add simulator-backed verification when Xcode is available
 
 Contribution rules:
 

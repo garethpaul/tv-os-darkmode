@@ -2,6 +2,8 @@
 
 ## 2026-06-08
 
+- Added a README manual appearance verification checklist and static coverage
+  to keep light/dark behavior checks discoverable.
 - Made the appearance-state label wrap and expose stable accessibility text.
 - Extended the tvOS static contract check to cover label wrapping and
   accessibility metadata.
