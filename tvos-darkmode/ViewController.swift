@@ -39,6 +39,7 @@ class ViewController: UIViewController {
         appearanceLabel.minimumScaleFactor = 0.6
         appearanceLabel.accessibilityIdentifier = "appearance-state-label"
         appearanceLabel.isAccessibilityElement = true
+        appearanceLabel.accessibilityTraits = UIAccessibilityTraitStaticText
         appearanceLabel.font = UIFont.boldSystemFont(ofSize: 54.0)
         view.addSubview(appearanceLabel)
 

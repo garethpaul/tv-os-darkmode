@@ -96,6 +96,10 @@ def check_visible_appearance_state():
         "appearance label must be exposed as an accessibility element",
     )
     require(
+        "appearanceLabel.accessibilityTraits = UIAccessibilityTraitStaticText" in view_controller,
+        "appearance label must identify itself as static text for assistive technologies",
+    )
+    require(
         view_controller.count("updateAppearance(for: traitCollection)") >= 2,
         "appearance state must be applied on load and after trait changes",
     )
