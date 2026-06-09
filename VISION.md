@@ -21,6 +21,7 @@ Priority:
 - Keep the appearance state readable and accessible
 - Keep appearance labels identifiable as static text to assistive technologies
 - Keep appearance text scaled within the tvOS viewport
+- Keep appearance text bounded inside the tvOS viewport
 - Keep foreground and background appearance colors paired explicitly
 - Keep completed maintenance plans under `docs/plans`
 

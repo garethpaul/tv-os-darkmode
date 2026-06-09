@@ -88,6 +88,14 @@ def check_visible_appearance_state():
         "appearance label must keep a readable minimum scale factor",
     )
     require(
+        "appearanceLabel.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.8)" in view_controller,
+        "appearance label must stay within the viewport width",
+    )
+    require(
+        "appearanceLabel.heightAnchor.constraint(lessThanOrEqualTo: view.heightAnchor, multiplier: 0.8)" in view_controller,
+        "appearance label must stay within the viewport height",
+    )
+    require(
         'appearanceLabel.accessibilityIdentifier = "appearance-state-label"' in view_controller,
         "appearance label must have a stable accessibility identifier",
     )

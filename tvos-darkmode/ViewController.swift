@@ -46,7 +46,8 @@ class ViewController: UIViewController {
         NSLayoutConstraint.activate([
             appearanceLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             appearanceLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            appearanceLabel.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.8)
+            appearanceLabel.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.8),
+            appearanceLabel.heightAnchor.constraint(lessThanOrEqualTo: view.heightAnchor, multiplier: 0.8)
         ])
     }
 

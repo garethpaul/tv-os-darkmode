@@ -2,6 +2,9 @@
 
 ## 2026-06-09
 
+- Bounded the appearance label height as well as width inside the tvOS
+  viewport.
+- Extended static tvOS contracts to preserve the label layout bounds.
 - Marked the appearance label with the static-text accessibility trait.
 - Extended static tvOS contracts to preserve the accessibility trait guard.
 - Enabled appearance-label font scaling for longer runtime states.

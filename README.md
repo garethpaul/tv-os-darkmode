@@ -52,8 +52,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 ## Testing and Verification
 
 - `make check` runs tvOS project, plist, asset, appearance-state, and
-  appearance-label accessibility, static-text trait, scaling, and contrast
-  contract checks.
+  appearance-label accessibility, static-text trait, scaling, bounded-layout,
+  and contrast contract checks.
 - Static checks also require completed canonical plans under `docs/plans`.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination on macOS
 
@@ -92,6 +92,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   label scaling guard.
 - See `docs/plans/2026-06-09-appearance-label-trait.md` for the appearance
   label accessibility trait guard.
+- See `docs/plans/2026-06-09-appearance-label-bounds.md` for the appearance
+  label viewport-bounds guard.
 
 ## Contributing
 
