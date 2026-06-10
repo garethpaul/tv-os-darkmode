@@ -2,6 +2,13 @@
 
 ## 2026-06-10
 
+- Migrated the project from Swift 3 and tvOS 10 to Swift 5 and tvOS 12.
+- Replaced legacy application entry-point, launch-options, and accessibility
+  APIs with current Swift/UIKit syntax and removed empty lifecycle callbacks.
+- Added a fixed macOS 15/Xcode 16.4 hosted build alongside the portable static
+  contract job, with fixed runners and scoped concurrency.
+- Made Make targets independent of the caller's working directory and extended
+  mutation-resistant contracts for the toolchain and hosted build.
 - Added a least-privilege GitHub Actions workflow that runs the static
   `make check` baseline with commit-pinned Node 24 actions and a bounded
   runtime.

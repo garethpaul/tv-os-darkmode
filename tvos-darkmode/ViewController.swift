@@ -4,7 +4,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+final class ViewController: UIViewController {
 
     private let appearanceLabel = UILabel()
 
@@ -15,18 +15,12 @@ class ViewController: UIViewController {
         updateAppearance(for: traitCollection)
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        
-        guard(traitCollection.responds(to: #selector(getter:UITraitCollection.userInterfaceStyle)))
-        else { return }
-        
-        guard(traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle) else { return }
+
+        guard traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle else {
+            return
+        }
 
         updateAppearance(for: traitCollection)
     }
@@ -41,7 +35,7 @@ class ViewController: UIViewController {
         appearanceLabel.accessibilityIdentifier = "appearance-state-label"
         appearanceLabel.isAccessibilityElement = true
         appearanceLabel.isUserInteractionEnabled = false
-        appearanceLabel.accessibilityTraits = UIAccessibilityTraitStaticText
+        appearanceLabel.accessibilityTraits = .staticText
         appearanceLabel.accessibilityHint = "Shows the current tvOS appearance mode"
         appearanceLabel.font = UIFont.boldSystemFont(ofSize: 54.0)
         view.addSubview(appearanceLabel)
@@ -55,14 +49,6 @@ class ViewController: UIViewController {
     }
 
     private func updateAppearance(for traitCollection: UITraitCollection) {
-        guard(traitCollection.responds(to: #selector(getter:UITraitCollection.userInterfaceStyle)))
-        else {
-            setAppearance(text: "Appearance Unavailable",
-                          backgroundColor: UIColor.black,
-                          textColor: UIColor.white)
-            return
-        }
-
         switch traitCollection.userInterfaceStyle {
         case .dark:
             setAppearance(text: "Dark Mode",
