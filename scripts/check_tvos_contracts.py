@@ -244,6 +244,7 @@ def check_ci_baseline_docs():
         "ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))",
         '$(PYTHON) "$(ROOT)/scripts/check_tvos_contracts.py"',
         'cd "$(ROOT)" && xcodebuild',
+        '-destination "generic/platform=tvOS Simulator"',
     ):
         require(contract in makefile, f"Makefile must support invocation outside the repository: {contract}")
     for docs_file in ("README.md", "VISION.md", "SECURITY.md", "CHANGES.md"):

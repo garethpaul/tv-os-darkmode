@@ -10,7 +10,7 @@ test: lint
 
 build:
 	@if command -v xcodebuild >/dev/null 2>&1; then \
-		cd "$(ROOT)" && xcodebuild -project tvos-darkmode.xcodeproj -scheme tvos-darkmode -sdk appletvsimulator -configuration Debug CODE_SIGNING_ALLOWED=NO build; \
+		cd "$(ROOT)" && xcodebuild -project tvos-darkmode.xcodeproj -scheme tvos-darkmode -destination "generic/platform=tvOS Simulator" -configuration Debug CODE_SIGNING_ALLOWED=NO build; \
 	else \
 		echo "tvOS build skipped: xcodebuild is not available on this host."; \
 	fi
