@@ -28,6 +28,7 @@ Priority:
 - Keep foreground and background appearance colors paired explicitly
 - Keep app delegate signatures aligned with the checked-in Swift version
 - Keep completed maintenance plans under `docs/plans`
+- Keep GitHub Actions running the static `make check` baseline before review
 
 Next priorities:
 
@@ -40,6 +41,8 @@ Contribution rules:
 - One PR = one focused appearance, UI, project, or documentation change.
 - Keep the sample minimal.
 - Include simulator or device notes for behavior changes.
+- Keep `.github/workflows/check.yml` aligned with the static tvOS baseline until
+  a macOS/tvOS simulator job is documented.
 - Avoid adding services or persistence.
 
 ## Security And Responsible Use

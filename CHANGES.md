@@ -1,5 +1,13 @@
 # Changes
 
+## 2026-06-10
+
+- Added a least-privilege GitHub Actions workflow that runs the static
+  `make check` baseline with commit-pinned Node 24 actions and a bounded
+  runtime.
+- Added a tvOS static contract guard requiring the CI workflow and completed CI
+  baseline plan to remain checked in.
+
 ## 2026-06-09
 
 - Updated the app delegate launch callback to the Swift 3 launch-options
