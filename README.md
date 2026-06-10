@@ -71,7 +71,8 @@ The project uses Swift 5 and has no third-party package dependencies.
 - Run the app on a tvOS simulator or device in Light appearance and confirm the
   centered label reads `Light Mode` with a white background.
 - Switch the simulator or device to Dark appearance, then confirm the centered
-  label reads `Dark Mode` with a black background.
+  label reads `Dark Mode` with a black background. With VoiceOver enabled,
+  confirm the updated appearance state is announced after the switch.
 - If the trait collection reports an unspecified style, confirm the fallback
   label reads `Automatic Mode` on a dark gray background.
 
@@ -110,6 +111,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   view automation identifier guard.
 - See `docs/plans/2026-06-09-appearance-label-display-only.md` for the
   display-only appearance label guard.
+- See `docs/plans/2026-06-10-appearance-announcement.md` for trait-change
+  VoiceOver announcement coverage.
 - See `docs/plans/2026-06-09-app-delegate-launch-options.md` for the historical
   Swift 3 app delegate launch-options correction.
 - See `docs/plans/2026-06-10-ci-baseline.md` for the GitHub Actions static

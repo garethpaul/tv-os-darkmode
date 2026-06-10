@@ -155,6 +155,22 @@ def check_visible_appearance_state():
         "appearance state must be applied on load and after trait changes",
     )
     require(
+        "UIAccessibility.post(notification: .announcement," in view_controller
+        and "argument: appearanceLabel.accessibilityLabel)" in view_controller,
+        "appearance changes must announce the updated state to assistive technologies",
+    )
+    trait_change = re.search(
+        r"override func traitCollectionDidChange.*?\n    \}",
+        view_controller,
+        re.DOTALL,
+    )
+    require(trait_change is not None, "traitCollectionDidChange must remain implemented")
+    require(
+        trait_change.group(0).index("updateAppearance(for: traitCollection)")
+        < trait_change.group(0).index("UIAccessibility.post(notification: .announcement,"),
+        "appearance state must update before its accessibility announcement",
+    )
+    require(
         "traitCollection.responds(to:" not in view_controller,
         "tvOS 12 appearance handling must not rely on Objective-C selector checks",
     )

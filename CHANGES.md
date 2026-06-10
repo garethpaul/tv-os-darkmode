@@ -2,6 +2,8 @@
 
 ## 2026-06-10
 
+- Announced trait-driven appearance changes through VoiceOver after updating
+  the visible and accessibility label state.
 - Migrated the project from Swift 3 and tvOS 10 to Swift 5 and tvOS 12.
 - Replaced legacy application entry-point, launch-options, and accessibility
   APIs with current Swift/UIKit syntax and removed empty lifecycle callbacks.

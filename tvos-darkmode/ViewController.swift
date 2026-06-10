@@ -23,6 +23,8 @@ final class ViewController: UIViewController {
         }
 
         updateAppearance(for: traitCollection)
+        UIAccessibility.post(notification: .announcement,
+                             argument: appearanceLabel.accessibilityLabel)
     }
 
     private func configureAppearanceLabel() {
