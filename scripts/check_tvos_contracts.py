@@ -14,6 +14,8 @@ DOCS_PLANS = ROOT / "docs" / "plans"
 CANONICAL_PLAN = DOCS_PLANS / "2026-06-08-tvos-darkmode-baseline.md"
 ROOT_IDENTIFIER_PLAN = DOCS_PLANS / "2026-06-09-root-view-identifier.md"
 APP_DELEGATE_LAUNCH_PLAN = DOCS_PLANS / "2026-06-09-app-delegate-launch-options.md"
+CI_PLAN = DOCS_PLANS / "2026-06-10-ci-baseline.md"
+CI_WORKFLOW = ROOT / ".github" / "workflows" / "check.yml"
 
 
 def fail(message):
@@ -34,6 +36,7 @@ def check_docs_plans():
     require(CANONICAL_PLAN.exists(), "docs/plans/2026-06-08-tvos-darkmode-baseline.md is missing")
     require(ROOT_IDENTIFIER_PLAN.exists(), "docs/plans/2026-06-09-root-view-identifier.md is missing")
     require(APP_DELEGATE_LAUNCH_PLAN.exists(), "docs/plans/2026-06-09-app-delegate-launch-options.md is missing")
+    require(CI_PLAN.exists(), "docs/plans/2026-06-10-ci-baseline.md is missing")
     plans = sorted(DOCS_PLANS.glob("*.md")) if DOCS_PLANS.exists() else []
     require(plans, "docs/plans must contain at least one completed plan")
     for plan_path in plans:
@@ -194,6 +197,16 @@ def check_manual_verification_docs():
         require(fragment in readme, f"README manual verification is missing: {fragment}")
 
 
+def check_ci_baseline_docs():
+    require(CI_WORKFLOW.exists(), ".github/workflows/check.yml is missing")
+    workflow = CI_WORKFLOW.read_text(encoding="utf-8")
+    require("uses: actions/checkout@v4" in workflow, "CI workflow must check out the repository")
+    require("uses: actions/setup-python@v5" in workflow, "CI workflow must set up Python")
+    require("run: make check" in workflow, "CI workflow must run make check")
+    for docs_file in ("README.md", "VISION.md", "SECURITY.md", "CHANGES.md"):
+        require("GitHub Actions" in read_text(docs_file), f"{docs_file} must document the GitHub Actions baseline")
+
+
 def main():
     checks = [
         check_docs_plans,
@@ -202,6 +215,7 @@ def main():
         check_app_delegate_contracts,
         check_visible_appearance_state,
         check_manual_verification_docs,
+        check_ci_baseline_docs,
     ]
     try:
         for check in checks:

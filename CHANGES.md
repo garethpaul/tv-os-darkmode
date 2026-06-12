@@ -1,5 +1,12 @@
 # Changes
 
+## 2026-06-10
+
+- Added a GitHub Actions check workflow that runs the existing static
+  `make check` baseline on pushes, pull requests, and manual dispatches.
+- Added a tvOS static contract guard requiring the CI workflow and completed CI
+  baseline plan to remain checked in.
+
 ## 2026-06-09
 
 - Updated the app delegate launch callback to the Swift 3 launch-options

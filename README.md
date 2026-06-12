@@ -53,6 +53,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 - Open `tvos-darkmode.xcodeproj` in Xcode, choose the app or sample scheme, and run it on the matching simulator/device.
 - Run `make check` for static repository checks. The `build` step runs `xcodebuild` only on hosts where it is installed.
+- GitHub Actions runs `make check` through `.github/workflows/check.yml` on
+  pushes, pull requests, and manual dispatches.
 
 ## Testing and Verification
 
@@ -109,6 +111,7 @@ When the required SDK or runtime is unavailable, use static checks and source re
   display-only appearance label guard.
 - See `docs/plans/2026-06-09-app-delegate-launch-options.md` for the Swift 3
   app delegate launch-options signature guard.
+- See `docs/plans/2026-06-10-ci-baseline.md` for the GitHub Actions baseline.
 
 ## Contributing
 
