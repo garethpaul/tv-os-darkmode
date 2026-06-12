@@ -44,5 +44,7 @@ remains green.
   scheme structure.
 - `python3 -m py_compile scripts/check_tvos_contracts.py` and
   `git diff --check` passed.
-- Hosted Xcode 16.4 XCTest on the pinned tvOS simulator is pending and remains
-  the authoritative executable-test gate.
+- GitHub Actions run 27422477268 passed `static-contracts` and `xcode-test` at
+  implementation head `b35be8cbd9cf353d10adbe00872a96902c1a6638`.
+- Xcode 16.4 executed all three appearance tests on the pinned tvOS 18.5
+  simulator with zero failures and reported `TEST SUCCEEDED`.
