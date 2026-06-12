@@ -1,36 +1,41 @@
-# tvOS Dark Mode CI Baseline
+# tvOS Static Contract Gate
 
 ## Status: Completed
 
 ## Context
 
-`tv-os-darkmode` has Python-backed static tvOS project, plist, asset, and
-appearance contracts behind `make check`, with Xcode builds guarded for hosts
-that provide `xcodebuild`. The repository needs those checks in GitHub Actions
-before review.
+`tv-os-darkmode` has deterministic Python-backed contracts for its Xcode
+project, plist, storyboard, asset catalogs, appearance behavior, accessibility,
+and completed plans. Full compilation and runtime verification require macOS,
+Xcode, and a tvOS simulator or device, but the portable contracts previously
+had no hosted gate.
 
 ## Objectives
 
-- Run the existing `make check` wrapper in GitHub Actions.
-- Keep the hosted job independent of Xcode and tvOS simulator availability.
-- Make the workflow presence part of the static baseline contract.
+- Run all portable contracts on pushes and pull requests.
+- Keep the workflow least-privilege, immutable, and bounded.
+- Preserve a manual maintenance trigger.
+- Avoid implying that Linux validates the tvOS build or runtime.
 
 ## Work Completed
 
-- Added `.github/workflows/check.yml` to run `make check` on pushes, pull
-  requests, and manual dispatches.
-- Set up Python 3.12 for the static checker.
-- Extended `scripts/check_tvos_contracts.py` to require the CI workflow and
-  this completed plan.
-- Updated README, VISION, SECURITY, and CHANGES with the CI baseline.
+- Added `.github/workflows/check.yml` for pushes to `master`, pull requests,
+  and manual runs.
+- Granted only read access to repository contents, disabled checkout credential
+  persistence, and set a five-minute timeout.
+- Pinned checkout and Python setup actions to immutable Node 24 commits.
+- Ran the existing `make check` entry point with Python 3.12.
+- Extended `scripts/check_tvos_contracts.py` to enforce workflow triggers,
+  permissions, timeout, action pins, runtime, and command.
+- Updated README, SECURITY, VISION, and CHANGES with the hosted baseline.
 
 ## Verification
 
-- `make check`
+- `python3 -m py_compile scripts/check_tvos_contracts.py`
 - `python3 scripts/check_tvos_contracts.py`
+- `make check`
 - `git diff --check`
 
-## Follow-Up Candidates
-
-- Add a macOS/tvOS simulator build job once the supported Xcode and simulator
-  baseline are documented.
+The Linux job validates portable repository and source contracts only. It does
+not compile Swift, run XCTest, launch a tvOS simulator, validate signing, or
+visually inspect light and dark appearances.

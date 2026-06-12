@@ -10,7 +10,9 @@
 
 ## Overview
 
-`garethpaul/tv-os-darkmode` is an Apple platform application or Objective-C/Swift sample. Implementing tvOS changes for dark/light mode
+`tv-os-darkmode` is a focused Swift tvOS sample that displays the current light,
+dark, or automatic interface style. The label updates when the trait collection
+changes and exposes stable accessibility metadata for inspection and UI tests.
 
 This README is based on the checked-in source, manifests, scripts, and repository metadata on the `master` branch. The project language mix found during review was: Swift (2).
 
@@ -38,7 +40,8 @@ Additional scan context:
 ### Prerequisites
 
 - Git
-- macOS with Xcode for building Apple platform projects
+- macOS with Xcode 16.4 for building the tvOS app
+- A tvOS 12 or newer simulator or Apple TV for runtime verification
 
 ### Setup
 
@@ -47,33 +50,37 @@ git clone https://github.com/garethpaul/tv-os-darkmode.git
 cd tv-os-darkmode
 ```
 
-The setup commands above are derived from repository files. Legacy mobile, Python, or JavaScript samples may require older SDKs or package versions than a modern workstation uses by default.
+The project uses Swift 5 and has no third-party package dependencies.
 
 ## Running or Using the Project
 
 - Open `tvos-darkmode.xcodeproj` in Xcode, choose the app or sample scheme, and run it on the matching simulator/device.
 - Run `make check` for static repository checks. The `build` step runs `xcodebuild` only on hosts where it is installed.
-- GitHub Actions runs `make check` through `.github/workflows/check.yml` on
-  pushes, pull requests, and manual dispatches.
+- GitHub Actions runs the portable contract gate on Ubuntu 24.04 and compiles
+  the app with Xcode 16.4 on macOS 15. Both jobs have read-only repository
+  permissions, disabled checkout credential persistence, bounded timeouts, and
+  immutable action revisions.
 
 ## Testing and Verification
 
 - `make check` runs tvOS project, plist, asset, appearance-state, and
   appearance-label accessibility, static-text trait, scaling, bounded-layout,
   accessibility-hint, display-only, root-view identifier, and contrast
-  contract checks. It also keeps the app delegate launch callback aligned with
-  the checked-in Swift 3 project setting.
+  contract checks. It also enforces Swift 5, the tvOS 12 deployment floor,
+  modern UIKit launch APIs, and hosted Xcode compilation.
 - Static checks also require completed canonical plans under `docs/plans`.
-- Xcode's test action or `xcodebuild test` with the appropriate scheme and destination on macOS
+- `make build` compiles the Debug app for the tvOS simulator when Xcode is
+  available and reports an explicit skip on non-macOS hosts.
 
 ### Manual Appearance Verification
 
 - Run the app on a tvOS simulator or device in Light appearance and confirm the
   centered label reads `Light Mode` with a white background.
 - Switch the simulator or device to Dark appearance, then confirm the centered
-  label reads `Dark Mode` with a black background.
-- If the runtime does not expose `userInterfaceStyle`, confirm the fallback
-  label reads `Appearance Unavailable`.
+  label reads `Dark Mode` with a black background. With VoiceOver enabled,
+  confirm the updated appearance state is announced after the switch.
+- If the trait collection reports an unspecified style, confirm the fallback
+  label reads `Automatic Mode` on a dark gray background.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -88,7 +95,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 ## Maintenance Notes
 
-- This looks like an Apple platform project or sample. Xcode, Swift, CocoaPods, and deployment target versions may need to match the original project era.
+- Keep the Xcode 16.4, Swift 5, and tvOS 12 baseline aligned across source,
+  project settings, static contracts, and hosted verification.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 - See `docs/plans/2026-06-08-tvos-darkmode-baseline.md` for the canonical
@@ -109,9 +117,14 @@ When the required SDK or runtime is unavailable, use static checks and source re
   view automation identifier guard.
 - See `docs/plans/2026-06-09-appearance-label-display-only.md` for the
   display-only appearance label guard.
-- See `docs/plans/2026-06-09-app-delegate-launch-options.md` for the Swift 3
-  app delegate launch-options signature guard.
-- See `docs/plans/2026-06-10-ci-baseline.md` for the GitHub Actions baseline.
+- See `docs/plans/2026-06-10-appearance-announcement.md` for trait-change
+  VoiceOver announcement coverage.
+- See `docs/plans/2026-06-09-app-delegate-launch-options.md` for the historical
+  Swift 3 app delegate launch-options correction.
+- See `docs/plans/2026-06-10-ci-baseline.md` for the GitHub Actions static
+  contract gate.
+- See `docs/plans/2026-06-10-modern-xcode-build.md` for the Swift 5 and hosted
+  Xcode build baseline.
 
 ## Contributing
 

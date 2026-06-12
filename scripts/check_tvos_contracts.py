@@ -15,7 +15,53 @@ CANONICAL_PLAN = DOCS_PLANS / "2026-06-08-tvos-darkmode-baseline.md"
 ROOT_IDENTIFIER_PLAN = DOCS_PLANS / "2026-06-09-root-view-identifier.md"
 APP_DELEGATE_LAUNCH_PLAN = DOCS_PLANS / "2026-06-09-app-delegate-launch-options.md"
 CI_PLAN = DOCS_PLANS / "2026-06-10-ci-baseline.md"
+MODERN_XCODE_PLAN = DOCS_PLANS / "2026-06-10-modern-xcode-build.md"
 CI_WORKFLOW = ROOT / ".github" / "workflows" / "check.yml"
+EXPECTED_WORKFLOW = """name: Check
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.12"
+      - name: Run baseline
+        run: make check
+
+  xcode-build:
+    runs-on: macos-15
+    timeout-minutes: 15
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+      - name: Compile tvOS app
+        run: make build
+"""
 
 
 def fail(message):
@@ -37,6 +83,7 @@ def check_docs_plans():
     require(ROOT_IDENTIFIER_PLAN.exists(), "docs/plans/2026-06-09-root-view-identifier.md is missing")
     require(APP_DELEGATE_LAUNCH_PLAN.exists(), "docs/plans/2026-06-09-app-delegate-launch-options.md is missing")
     require(CI_PLAN.exists(), "docs/plans/2026-06-10-ci-baseline.md is missing")
+    require(MODERN_XCODE_PLAN.exists(), "docs/plans/2026-06-10-modern-xcode-build.md is missing")
     plans = sorted(DOCS_PLANS.glob("*.md")) if DOCS_PLANS.exists() else []
     require(plans, "docs/plans must contain at least one completed plan")
     for plan_path in plans:
@@ -63,19 +110,28 @@ def check_xcode_project_contracts():
     project = read_text("tvos-darkmode.xcodeproj/project.pbxproj")
     require("SDKROOT = appletvos;" in project, "project must target the tvOS SDK")
     require("TARGETED_DEVICE_FAMILY = 3;" in project, "project must remain tvOS-only")
-    require("SWIFT_VERSION = 3.0;" in project, "legacy Swift version must stay explicit")
+    require(project.count("SWIFT_VERSION = 5.0;") == 2, "both target configurations must use Swift 5")
+    require(
+        project.count("TVOS_DEPLOYMENT_TARGET = 12.0;") == 2,
+        "both project configurations must target tvOS 12 or newer",
+    )
+    require("LastSwiftMigration = 1640;" in project, "project must record the Xcode 16.4 migration")
     require("ViewController.swift in Sources" in project, "ViewController must remain compiled")
 
 
 def check_app_delegate_contracts():
     app_delegate = read_text("tvos-darkmode/AppDelegate.swift")
     require(
-        "[UIApplicationLaunchOptionsKey: Any]?) -> Bool" in app_delegate,
-        "AppDelegate launch callback must use the Swift 3 launch-options signature",
+        "@main" in app_delegate and "final class AppDelegate" in app_delegate,
+        "AppDelegate must use the modern Swift application entry point",
     )
     require(
-        "[NSObject: AnyObject]?) -> Bool" not in app_delegate,
-        "AppDelegate launch callback must not use the pre-Swift-3 launch-options signature",
+        "[UIApplication.LaunchOptionsKey: Any]?" in app_delegate,
+        "AppDelegate launch callback must use the modern UIKit launch-options type",
+    )
+    require(
+        "UIApplicationLaunchOptionsKey" not in app_delegate and "@UIApplicationMain" not in app_delegate,
+        "AppDelegate must not use removed Swift 3 application APIs",
     )
 
 
@@ -86,6 +142,7 @@ def check_visible_appearance_state():
         "private let appearanceLabel = UILabel()" in view_controller,
         "ViewController must own a visible appearance label",
     )
+    require("final class ViewController" in view_controller, "ViewController must remain non-subclassable")
     require(
         'view.accessibilityIdentifier = "appearance-state-root-view"' in view_controller,
         "root appearance view must have a stable accessibility identifier",
@@ -131,7 +188,7 @@ def check_visible_appearance_state():
         "appearance label must remain a display-only, non-interactive view",
     )
     require(
-        "appearanceLabel.accessibilityTraits = UIAccessibilityTraitStaticText" in view_controller,
+        "appearanceLabel.accessibilityTraits = .staticText" in view_controller,
         "appearance label must identify itself as static text for assistive technologies",
     )
     require(
@@ -143,8 +200,24 @@ def check_visible_appearance_state():
         "appearance state must be applied on load and after trait changes",
     )
     require(
-        "traitCollection.responds(to:" in view_controller,
-        "runtime userInterfaceStyle availability guard must be preserved",
+        "UIAccessibility.post(notification: .announcement," in view_controller
+        and "argument: appearanceLabel.accessibilityLabel)" in view_controller,
+        "appearance changes must announce the updated state to assistive technologies",
+    )
+    trait_change = re.search(
+        r"override func traitCollectionDidChange.*?\n    \}",
+        view_controller,
+        re.DOTALL,
+    )
+    require(trait_change is not None, "traitCollectionDidChange must remain implemented")
+    require(
+        trait_change.group(0).index("updateAppearance(for: traitCollection)")
+        < trait_change.group(0).index("UIAccessibility.post(notification: .announcement,"),
+        "appearance state must update before its accessibility announcement",
+    )
+    require(
+        "traitCollection.responds(to:" not in view_controller,
+        "tvOS 12 appearance handling must not rely on Objective-C selector checks",
     )
     require(
         all(fragment in view_controller for fragment in ["case .dark:", "case .light:", "default:"]),
@@ -191,7 +264,7 @@ def check_manual_verification_docs():
         "`Light Mode`",
         "Dark appearance",
         "`Dark Mode`",
-        "`Appearance Unavailable`",
+        "`Automatic Mode`",
         "docs/plans/2026-06-08-manual-appearance-verification.md",
     ]:
         require(fragment in readme, f"README manual verification is missing: {fragment}")
@@ -200,9 +273,19 @@ def check_manual_verification_docs():
 def check_ci_baseline_docs():
     require(CI_WORKFLOW.exists(), ".github/workflows/check.yml is missing")
     workflow = CI_WORKFLOW.read_text(encoding="utf-8")
-    require("uses: actions/checkout@v4" in workflow, "CI workflow must check out the repository")
-    require("uses: actions/setup-python@v5" in workflow, "CI workflow must set up Python")
-    require("run: make check" in workflow, "CI workflow must run make check")
+    require(
+        workflow == EXPECTED_WORKFLOW,
+        "CI workflow must match the exact credential-free static and Xcode build contract",
+    )
+    makefile = read_text("Makefile")
+    for contract in (
+        "ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))",
+        '$(PYTHON) "$(ROOT)/scripts/check_tvos_contracts.py"',
+        'cd "$(ROOT)" && xcodebuild',
+        '-destination "generic/platform=tvOS Simulator"',
+        "CODE_SIGNING_ALLOWED=NO",
+    ):
+        require(contract in makefile, f"Makefile must support invocation outside the repository: {contract}")
     for docs_file in ("README.md", "VISION.md", "SECURITY.md", "CHANGES.md"):
         require("GitHub Actions" in read_text(docs_file), f"{docs_file} must document the GitHub Actions baseline")
 

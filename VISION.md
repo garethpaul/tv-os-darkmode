@@ -22,27 +22,29 @@ Priority:
 - Keep appearance labels identifiable as static text to assistive technologies
 - Keep appearance labels display-only and non-interactive
 - Keep appearance labels described for assistive technologies
+- Announce live appearance changes to assistive technologies
 - Keep the root appearance view identifiable for simulator/UI verification
 - Keep appearance text scaled within the tvOS viewport
 - Keep appearance text bounded inside the tvOS viewport
 - Keep foreground and background appearance colors paired explicitly
 - Keep app delegate signatures aligned with the checked-in Swift version
+- Keep the Swift 5 and tvOS 12 project baseline buildable with Xcode 16.4
 - Keep completed maintenance plans under `docs/plans`
-- Keep GitHub Actions running the static `make check` baseline before review
+- Keep GitHub Actions running both portable contracts and hosted Xcode builds
 
 Next priorities:
 
 - Add device or simulator screenshots for light and dark appearances
-- Document supported tvOS and Xcode versions
-- Add simulator-backed verification when Xcode is available
+- Add simulator-backed runtime verification and screenshots
+- Replace deprecated trait-change observation when the deployment floor allows
 
 Contribution rules:
 
 - One PR = one focused appearance, UI, project, or documentation change.
 - Keep the sample minimal.
 - Include simulator or device notes for behavior changes.
-- Keep `.github/workflows/check.yml` aligned with the static tvOS baseline until
-  a macOS/tvOS simulator job is documented.
+- Keep `.github/workflows/check.yml` aligned with the static and Xcode build
+  baselines.
 - Avoid adding services or persistence.
 
 ## Security And Responsible Use
@@ -60,7 +62,7 @@ tracking, or device data collection behavior.
 - Unrelated feature expansion
 - Network dependencies
 - Appearance labels that can overflow the viewport
-- Pre-Swift-3 delegate signatures in Swift 3 project code
+- Legacy Swift application entry points or launch-options types
 - Appearance changes without a verification note
 
 This list is a roadmap guardrail, not a permanent rule.

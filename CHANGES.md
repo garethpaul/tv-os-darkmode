@@ -2,8 +2,19 @@
 
 ## 2026-06-10
 
-- Added a GitHub Actions check workflow that runs the existing static
-  `make check` baseline on pushes, pull requests, and manual dispatches.
+- Announced trait-driven appearance changes through VoiceOver after updating
+  the visible and accessibility label state.
+- Migrated the project from Swift 3 and tvOS 10 to Swift 5 and tvOS 12.
+- Replaced legacy application entry-point, launch-options, and accessibility
+  APIs with current Swift/UIKit syntax and removed empty lifecycle callbacks.
+- Added a fixed macOS 15/Xcode 16.4 hosted build alongside the portable static
+  contract job, with fixed runners, scoped concurrency, and disabled checkout
+  credential persistence.
+- Made Make targets independent of the caller's working directory and extended
+  mutation-resistant contracts for the toolchain and hosted build.
+- Added a least-privilege GitHub Actions workflow that runs the static
+  `make check` baseline with commit-pinned Node 24 actions and a bounded
+  runtime.
 - Added a tvOS static contract guard requiring the CI workflow and completed CI
   baseline plan to remain checked in.
 
