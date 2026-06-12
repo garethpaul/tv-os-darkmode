@@ -17,7 +17,8 @@ contains an app and a hosted unit-test bundle.
    manual triggers.
 2. Keep actions and Python analysis on Ubuntu with no build.
 3. Analyze Swift on macOS with a manual, unsigned, single-architecture
-   `xcodebuild` of the tvOS app target rather than simulator test execution.
+   `xcodebuild -target tvos-darkmode` invocation rather than the shared scheme,
+   whose BuildAction also includes the separately tested XCTest bundle.
 4. Extend the portable baseline checker to reject workflow removal, mutable
    actions, permission drift, autobuild, or loss of the explicit tvOS build.
 5. Disable repository default setup only when the advanced workflow is ready

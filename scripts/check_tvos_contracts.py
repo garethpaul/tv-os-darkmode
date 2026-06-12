@@ -127,7 +127,7 @@ jobs:
         run: >-
           xcodebuild
           -project tvos-darkmode.xcodeproj
-          -scheme tvos-darkmode
+          -target tvos-darkmode
           -destination "generic/platform=tvOS Simulator"
           -configuration Debug
           ARCHS=arm64

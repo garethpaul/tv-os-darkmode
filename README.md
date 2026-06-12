@@ -62,8 +62,8 @@ The project uses Swift 5 and has no third-party package dependencies.
   permissions, disabled checkout credential persistence, bounded timeouts, and
   immutable action revisions.
 - CodeQL analyzes actions and Python without a build, and analyzes Swift from
-  an explicit unsigned single-architecture tvOS app build instead of relying
-  on Xcode target autodetection.
+  an explicit unsigned single-architecture `tvos-darkmode` app-target build
+  instead of relying on Xcode target autodetection or the test-bearing scheme.
 
 ## Testing and Verification
 
