@@ -61,6 +61,9 @@ The project uses Swift 5 and has no third-party package dependencies.
   XCTest with Xcode 16.4 on macOS 15. Both jobs have read-only repository
   permissions, disabled checkout credential persistence, bounded timeouts, and
   immutable action revisions.
+- CodeQL analyzes actions and Python without a build, and analyzes Swift from
+  an explicit unsigned single-architecture tvOS app build instead of relying
+  on Xcode target autodetection.
 
 ## Testing and Verification
 
@@ -131,6 +134,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   Xcode build baseline.
 - See `docs/plans/2026-06-12-executable-appearance-tests.md` for the executable
   XCTest baseline.
+- See `docs/plans/2026-06-12-codeql-manual-swift-build.md` for the explicit
+  Swift CodeQL build baseline.
 
 ## Contributing
 

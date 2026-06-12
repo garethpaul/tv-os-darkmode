@@ -8,6 +8,9 @@
   XCTest on the pinned tvOS 18.5 simulator.
 - Extended portable contracts across the source, test target, scheme,
   Makefile, workflow, tests, and completed plan.
+- Replaced ambiguous default-setup Swift CodeQL autobuild with a pinned
+  advanced workflow that manually builds the unsigned tvOS app target while
+  preserving actions and Python analysis.
 
 ## 2026-06-10
 

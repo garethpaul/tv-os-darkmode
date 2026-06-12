@@ -17,7 +17,9 @@ APP_DELEGATE_LAUNCH_PLAN = DOCS_PLANS / "2026-06-09-app-delegate-launch-options.
 CI_PLAN = DOCS_PLANS / "2026-06-10-ci-baseline.md"
 MODERN_XCODE_PLAN = DOCS_PLANS / "2026-06-10-modern-xcode-build.md"
 EXECUTABLE_TEST_PLAN = DOCS_PLANS / "2026-06-12-executable-appearance-tests.md"
+CODEQL_PLAN = DOCS_PLANS / "2026-06-12-codeql-manual-swift-build.md"
 CI_WORKFLOW = ROOT / ".github" / "workflows" / "check.yml"
+CODEQL_WORKFLOW = ROOT / ".github" / "workflows" / "codeql.yml"
 SHARED_SCHEME = ROOT / "tvos-darkmode.xcodeproj" / "xcshareddata" / "xcschemes" / "tvos-darkmode.xcscheme"
 EXPECTED_WORKFLOW = """name: Check
 
@@ -64,6 +66,77 @@ jobs:
       - name: Run tvOS XCTest
         run: make test
 """
+EXPECTED_CODEQL_WORKFLOW = """name: CodeQL
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  schedule:
+    - cron: "23 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+concurrency:
+  group: codeql-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze-scripts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - actions
+          - python
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+      - name: Analyze
+        uses: github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
+
+  analyze-swift:
+    runs-on: macos-15
+    timeout-minutes: 15
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
+        with:
+          languages: swift
+          build-mode: manual
+      - name: Build tvOS app for analysis
+        run: >-
+          xcodebuild
+          -project tvos-darkmode.xcodeproj
+          -scheme tvos-darkmode
+          -destination "generic/platform=tvOS Simulator"
+          -configuration Debug
+          ARCHS=arm64
+          ONLY_ACTIVE_ARCH=YES
+          CODE_SIGNING_ALLOWED=NO
+          build
+      - name: Analyze
+        uses: github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
+"""
 
 
 def fail(message):
@@ -89,6 +162,10 @@ def check_docs_plans():
     require(
         EXECUTABLE_TEST_PLAN.exists(),
         "docs/plans/2026-06-12-executable-appearance-tests.md is missing",
+    )
+    require(
+        CODEQL_PLAN.exists(),
+        "docs/plans/2026-06-12-codeql-manual-swift-build.md is missing",
     )
     plans = sorted(DOCS_PLANS.glob("*.md")) if DOCS_PLANS.exists() else []
     require(plans, "docs/plans must contain at least one completed plan")
@@ -327,10 +404,16 @@ def check_manual_verification_docs():
 
 def check_ci_baseline_docs():
     require(CI_WORKFLOW.exists(), ".github/workflows/check.yml is missing")
+    require(CODEQL_WORKFLOW.exists(), ".github/workflows/codeql.yml is missing")
     workflow = CI_WORKFLOW.read_text(encoding="utf-8")
+    codeql_workflow = CODEQL_WORKFLOW.read_text(encoding="utf-8")
     require(
         workflow == EXPECTED_WORKFLOW,
         "CI workflow must match the exact credential-free static and Xcode build contract",
+    )
+    require(
+        codeql_workflow == EXPECTED_CODEQL_WORKFLOW,
+        "CodeQL workflow must match the exact pinned script and manual Swift build contract",
     )
     makefile = read_text("Makefile")
     for contract in (
