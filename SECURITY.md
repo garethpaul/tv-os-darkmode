@@ -28,13 +28,13 @@ Helpful reports include:
 - Review found network clients, sockets, web APIs, or service endpoints; changes in those areas should receive security-focused review before merge.
 - Review found file, document, data, or media parsing flows; changes in those areas should receive security-focused review before merge.
 - No primary dependency manifest was detected in the repository root. If dependencies are added later, include a manifest and prefer reproducible installation instructions.
-- GitHub Actions runs portable contracts on Ubuntu 24.04 and a code-signing-
-  disabled Xcode 16.4 simulator build on macOS 15. Both jobs use read-only
+- GitHub Actions runs portable contracts on Ubuntu 24.04 and code-signing-
+  disabled Xcode 16.4 XCTest on macOS 15. Both jobs use read-only
   repository permissions, disabled checkout credential persistence, bounded
   timeouts, and immutable action revisions.
   Simulator launch, deployment, signing, or credentialed steps require a
   separate security review.
-- The shared Makefile keeps hosted compilation unsigned with
+- The shared Makefile keeps hosted tests and compilation unsigned with
   `CODE_SIGNING_ALLOWED=NO`.
 
 ## Mobile Privacy Notes

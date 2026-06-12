@@ -19,7 +19,7 @@
 - Full baseline: `make check`
 - Combined verification: `make verify`
 - Lint/static checks: `make lint`
-- Tests: `make test`
+- Tests: `make test` (runs static contracts everywhere and XCTest when Xcode is available)
 - Build: `make build`
 - Local Apple development: `open tvos-darkmode.xcodeproj`
 - If a command above skips because a platform toolchain is missing, verify on a machine with that SDK before claiming platform behavior is tested.
@@ -31,7 +31,8 @@
 
 ## Testing guidance
 
-- No dedicated test files were detected; treat `make check` as the minimum baseline.
+- `tvos-darkmodeTests/AppearancePresentationTests.swift` covers the light,
+  dark, and fallback appearance mapping with XCTest.
 - Start with the narrowest relevant test or Make target, then run `make check` before handing off if the change is not documentation-only.
 - Keep README verification notes in sync when commands, fixtures, or supported toolchains change.
 

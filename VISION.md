@@ -29,13 +29,14 @@ Priority:
 - Keep foreground and background appearance colors paired explicitly
 - Keep app delegate signatures aligned with the checked-in Swift version
 - Keep the Swift 5 and tvOS 12 project baseline buildable with Xcode 16.4
+- Keep light, dark, and fallback appearance mapping covered by hosted XCTest
 - Keep completed maintenance plans under `docs/plans`
-- Keep GitHub Actions running both portable contracts and hosted Xcode builds
+- Keep GitHub Actions running both portable contracts and hosted XCTest
 
 Next priorities:
 
 - Add device or simulator screenshots for light and dark appearances
-- Add simulator-backed runtime verification and screenshots
+- Add simulator-backed UI verification and screenshots
 - Replace deprecated trait-change observation when the deployment floor allows
 
 Contribution rules:
@@ -43,7 +44,7 @@ Contribution rules:
 - One PR = one focused appearance, UI, project, or documentation change.
 - Keep the sample minimal.
 - Include simulator or device notes for behavior changes.
-- Keep `.github/workflows/check.yml` aligned with the static and Xcode build
+- Keep `.github/workflows/check.yml` aligned with the static and XCTest
   baselines.
 - Avoid adding services or persistence.
 

@@ -16,7 +16,9 @@ ROOT_IDENTIFIER_PLAN = DOCS_PLANS / "2026-06-09-root-view-identifier.md"
 APP_DELEGATE_LAUNCH_PLAN = DOCS_PLANS / "2026-06-09-app-delegate-launch-options.md"
 CI_PLAN = DOCS_PLANS / "2026-06-10-ci-baseline.md"
 MODERN_XCODE_PLAN = DOCS_PLANS / "2026-06-10-modern-xcode-build.md"
+EXECUTABLE_TEST_PLAN = DOCS_PLANS / "2026-06-12-executable-appearance-tests.md"
 CI_WORKFLOW = ROOT / ".github" / "workflows" / "check.yml"
+SHARED_SCHEME = ROOT / "tvos-darkmode.xcodeproj" / "xcshareddata" / "xcschemes" / "tvos-darkmode.xcscheme"
 EXPECTED_WORKFLOW = """name: Check
 
 on:
@@ -49,7 +51,7 @@ jobs:
       - name: Run baseline
         run: make check
 
-  xcode-build:
+  xcode-test:
     runs-on: macos-15
     timeout-minutes: 15
     env:
@@ -59,8 +61,8 @@ jobs:
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
-      - name: Compile tvOS app
-        run: make build
+      - name: Run tvOS XCTest
+        run: make test
 """
 
 
@@ -84,6 +86,10 @@ def check_docs_plans():
     require(APP_DELEGATE_LAUNCH_PLAN.exists(), "docs/plans/2026-06-09-app-delegate-launch-options.md is missing")
     require(CI_PLAN.exists(), "docs/plans/2026-06-10-ci-baseline.md is missing")
     require(MODERN_XCODE_PLAN.exists(), "docs/plans/2026-06-10-modern-xcode-build.md is missing")
+    require(
+        EXECUTABLE_TEST_PLAN.exists(),
+        "docs/plans/2026-06-12-executable-appearance-tests.md is missing",
+    )
     plans = sorted(DOCS_PLANS.glob("*.md")) if DOCS_PLANS.exists() else []
     require(plans, "docs/plans must contain at least one completed plan")
     for plan_path in plans:
@@ -101,6 +107,7 @@ def check_project_files_parse():
     require(info["UIUserInterfaceStyle"] == "Automatic", "app must opt into automatic appearance")
 
     ET.parse(ROOT / "tvos-darkmode/Base.lproj/Main.storyboard")
+    ET.parse(SHARED_SCHEME)
 
     for path in (ROOT / "tvos-darkmode/Assets.xcassets").rglob("Contents.json"):
         json.loads(path.read_text(encoding="utf-8"))
@@ -110,13 +117,37 @@ def check_xcode_project_contracts():
     project = read_text("tvos-darkmode.xcodeproj/project.pbxproj")
     require("SDKROOT = appletvos;" in project, "project must target the tvOS SDK")
     require("TARGETED_DEVICE_FAMILY = 3;" in project, "project must remain tvOS-only")
-    require(project.count("SWIFT_VERSION = 5.0;") == 2, "both target configurations must use Swift 5")
     require(
-        project.count("TVOS_DEPLOYMENT_TARGET = 12.0;") == 2,
-        "both project configurations must target tvOS 12 or newer",
+        project.count("SWIFT_VERSION = 5.0;") == 4,
+        "app and test target configurations must use Swift 5",
+    )
+    require(
+        project.count("TVOS_DEPLOYMENT_TARGET = 12.0;") == 4,
+        "app and test configurations must target tvOS 12 or newer",
     )
     require("LastSwiftMigration = 1640;" in project, "project must record the Xcode 16.4 migration")
     require("ViewController.swift in Sources" in project, "ViewController must remain compiled")
+    for fragment in (
+        'productType = "com.apple.product-type.bundle.unit-test";',
+        "AppearancePresentationTests.swift in Sources",
+        'TEST_HOST = "$(BUILT_PRODUCTS_DIR)/tvos-darkmode.app/tvos-darkmode";',
+        "A12000000000000000000007 /* tvos-darkmodeTests */",
+    ):
+        require(fragment in project, f"Xcode test target is missing: {fragment}")
+
+    scheme = SHARED_SCHEME.read_text(encoding="utf-8")
+    for fragment in (
+        '<TestAction',
+        'BlueprintIdentifier = "A12000000000000000000007"',
+        'BuildableName = "tvos-darkmodeTests.xctest"',
+        'BlueprintName = "tvos-darkmodeTests"',
+        'skipped = "NO"',
+    ):
+        require(fragment in scheme, f"shared XCTest scheme is missing: {fragment}")
+    require(
+        scheme.count('BlueprintIdentifier = "A12000000000000000000007"') == 2,
+        "shared scheme must build and execute the test bundle",
+    )
 
 
 def check_app_delegate_contracts():
@@ -219,27 +250,28 @@ def check_visible_appearance_state():
         "traitCollection.responds(to:" not in view_controller,
         "tvOS 12 appearance handling must not rely on Objective-C selector checks",
     )
+    require("struct AppearancePresentation" in view_controller, "appearance mapping must be testable")
     require(
         all(fragment in view_controller for fragment in ["case .dark:", "case .light:", "default:"]),
-        "appearance update must handle dark, light, and fallback styles",
+        "appearance mapping must handle dark, light, and fallback styles",
     )
     for fragment, description in [
         (
-            'setAppearance(text: "Dark Mode",\n'
-            '                          backgroundColor: UIColor.black,\n'
-            '                          textColor: UIColor.white)',
+            'text: "Dark Mode",\n'
+            '                backgroundColor: .black,\n'
+            '                textColor: .white',
             "dark mode must use white text on black",
         ),
         (
-            'setAppearance(text: "Light Mode",\n'
-            '                          backgroundColor: UIColor.white,\n'
-            '                          textColor: UIColor.black)',
+            'text: "Light Mode",\n'
+            '                backgroundColor: .white,\n'
+            '                textColor: .black',
             "light mode must use black text on white",
         ),
         (
-            'setAppearance(text: "Automatic Mode",\n'
-            '                          backgroundColor: UIColor.darkGray,\n'
-            '                          textColor: UIColor.white)',
+            'text: "Automatic Mode",\n'
+            '                backgroundColor: .darkGray,\n'
+            '                textColor: .white',
             "fallback mode must use white text on dark gray",
         ),
     ]:
@@ -254,6 +286,29 @@ def check_visible_appearance_state():
         ),
         "appearance updates must change label text, accessibility text, text color, and background color",
     )
+    require(
+        "AppearancePresentation.resolve(" in view_controller
+        and "text: presentation.text" in view_controller
+        and "backgroundColor: presentation.backgroundColor" in view_controller
+        and "textColor: presentation.textColor" in view_controller,
+        "ViewController must apply the tested appearance presentation",
+    )
+
+
+def check_executable_tests():
+    tests = read_text("tvos-darkmodeTests/AppearancePresentationTests.swift")
+    for fragment in (
+        "import XCTest",
+        "@testable import tvos_darkmode",
+        "testDarkAppearanceUsesWhiteTextOnBlack",
+        "testLightAppearanceUsesBlackTextOnWhite",
+        "testUnspecifiedAppearanceUsesAutomaticFallback",
+        'XCTAssertEqual(presentation.text, "Dark Mode")',
+        'XCTAssertEqual(presentation.text, "Light Mode")',
+        'XCTAssertEqual(presentation.text, "Automatic Mode")',
+    ):
+        require(fragment in tests, f"XCTest coverage is missing: {fragment}")
+    require("XCTFail" not in tests, "XCTest coverage must not contain placeholder failures")
 
 
 def check_manual_verification_docs():
@@ -281,9 +336,12 @@ def check_ci_baseline_docs():
     for contract in (
         "ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))",
         '$(PYTHON) "$(ROOT)/scripts/check_tvos_contracts.py"',
+        "TVOS_DESTINATION ?= platform=tvOS Simulator,name=Apple TV 4K (3rd generation),OS=18.5",
         'cd "$(ROOT)" && xcodebuild',
         '-destination "generic/platform=tvOS Simulator"',
+        '-destination "$(TVOS_DESTINATION)"',
         "CODE_SIGNING_ALLOWED=NO",
+        "CODE_SIGNING_ALLOWED=NO test",
     ):
         require(contract in makefile, f"Makefile must support invocation outside the repository: {contract}")
     for docs_file in ("README.md", "VISION.md", "SECURITY.md", "CHANGES.md"):
@@ -297,6 +355,7 @@ def main():
         check_xcode_project_contracts,
         check_app_delegate_contracts,
         check_visible_appearance_state,
+        check_executable_tests,
         check_manual_verification_docs,
         check_ci_baseline_docs,
     ]

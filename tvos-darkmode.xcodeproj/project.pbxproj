@@ -11,7 +11,18 @@
 		7F0A5BB71D123A0B00128EFA /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F0A5BB61D123A0B00128EFA /* ViewController.swift */; };
 		7F0A5BBA1D123A0B00128EFA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7F0A5BB81D123A0B00128EFA /* Main.storyboard */; };
 		7F0A5BBC1D123A0B00128EFA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7F0A5BBB1D123A0B00128EFA /* Assets.xcassets */; };
+		A12000000000000000000001 /* AppearancePresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12000000000000000000002 /* AppearancePresentationTests.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A12000000000000000000009 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7F0A5BA91D123A0B00128EFA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7F0A5BB01D123A0B00128EFA;
+			remoteInfo = "tvos-darkmode";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		7F0A5BB11D123A0B00128EFA /* tvos-darkmode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "tvos-darkmode.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -20,10 +31,19 @@
 		7F0A5BB91D123A0B00128EFA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		7F0A5BBB1D123A0B00128EFA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7F0A5BBD1D123A0B00128EFA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A12000000000000000000002 /* AppearancePresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearancePresentationTests.swift; sourceTree = "<group>"; };
+		A12000000000000000000003 /* tvos-darkmodeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "tvos-darkmodeTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		7F0A5BAE1D123A0B00128EFA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A12000000000000000000005 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -37,6 +57,7 @@
 			isa = PBXGroup;
 			children = (
 				7F0A5BB31D123A0B00128EFA /* tvos-darkmode */,
+				A12000000000000000000004 /* tvos-darkmodeTests */,
 				7F0A5BB21D123A0B00128EFA /* Products */,
 			);
 			sourceTree = "<group>";
@@ -45,6 +66,7 @@
 			isa = PBXGroup;
 			children = (
 				7F0A5BB11D123A0B00128EFA /* tvos-darkmode.app */,
+				A12000000000000000000003 /* tvos-darkmodeTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -59,6 +81,14 @@
 				7F0A5BBD1D123A0B00128EFA /* Info.plist */,
 			);
 			path = "tvos-darkmode";
+			sourceTree = "<group>";
+		};
+		A12000000000000000000004 /* tvos-darkmodeTests */ = {
+			isa = PBXGroup;
+			children = (
+				A12000000000000000000002 /* AppearancePresentationTests.swift */,
+			);
+			path = "tvos-darkmodeTests";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -81,6 +111,23 @@
 			productReference = 7F0A5BB11D123A0B00128EFA /* tvos-darkmode.app */;
 			productType = "com.apple.product-type.application";
 		};
+		A12000000000000000000007 /* tvos-darkmodeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1200000000000000000000C /* Build configuration list for PBXNativeTarget "tvos-darkmodeTests" */;
+			buildPhases = (
+				A12000000000000000000006 /* Sources */,
+				A12000000000000000000005 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A12000000000000000000008 /* PBXTargetDependency */,
+			);
+			name = "tvos-darkmodeTests";
+			productName = "tvos-darkmodeTests";
+			productReference = A12000000000000000000003 /* tvos-darkmodeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -98,6 +145,9 @@
 						DevelopmentTeamName = "Gareth Jones";
 						ProvisioningStyle = Automatic;
 					};
+					A12000000000000000000007 = {
+						CreatedOnToolsVersion = 16.4;
+					};
 				};
 			};
 			buildConfigurationList = 7F0A5BAC1D123A0B00128EFA /* Build configuration list for PBXProject "tvos-darkmode" */;
@@ -112,8 +162,9 @@
 			productRefGroup = 7F0A5BB21D123A0B00128EFA /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
-			targets = (
-				7F0A5BB01D123A0B00128EFA /* tvos-darkmode */,
+				targets = (
+					7F0A5BB01D123A0B00128EFA /* tvos-darkmode */,
+					A12000000000000000000007 /* tvos-darkmodeTests */,
 			);
 		};
 /* End PBXProject section */
@@ -140,7 +191,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A12000000000000000000006 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A12000000000000000000001 /* AppearancePresentationTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A12000000000000000000008 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7F0A5BB01D123A0B00128EFA /* tvos-darkmode */;
+			targetProxy = A12000000000000000000009 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		7F0A5BB81D123A0B00128EFA /* Main.storyboard */ = {
@@ -267,6 +334,36 @@
 			};
 			name = Release;
 		};
+		A1200000000000000000000A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.gpj.tvos-darkmodeTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/tvos-darkmode.app/tvos-darkmode";
+				TVOS_DEPLOYMENT_TARGET = 12.0;
+			};
+			name = Debug;
+		};
+		A1200000000000000000000B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.gpj.tvos-darkmodeTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/tvos-darkmode.app/tvos-darkmode";
+				TVOS_DEPLOYMENT_TARGET = 12.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -286,6 +383,15 @@
 				7F0A5BC21D123A0B00128EFA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+		};
+		A1200000000000000000000C /* Build configuration list for PBXNativeTarget "tvos-darkmodeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1200000000000000000000A /* Debug */,
+				A1200000000000000000000B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

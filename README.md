@@ -33,7 +33,7 @@ Additional scan context:
 - Source directories: tvos-darkmode
 - Dependency and build manifests: none detected
 - Entry points or build surfaces: tvos-darkmode.xcodeproj
-- Test-looking files: no obvious test files detected
+- Test source: `tvos-darkmodeTests/AppearancePresentationTests.swift`
 
 ## Getting Started
 
@@ -55,9 +55,10 @@ The project uses Swift 5 and has no third-party package dependencies.
 ## Running or Using the Project
 
 - Open `tvos-darkmode.xcodeproj` in Xcode, choose the app or sample scheme, and run it on the matching simulator/device.
-- Run `make check` for static repository checks. The `build` step runs `xcodebuild` only on hosts where it is installed.
-- GitHub Actions runs the portable contract gate on Ubuntu 24.04 and compiles
-  the app with Xcode 16.4 on macOS 15. Both jobs have read-only repository
+- Run `make check` for static repository checks, executable XCTest when Xcode
+  is available, and unsigned simulator compilation.
+- GitHub Actions runs the portable contract gate on Ubuntu 24.04 and executes
+  XCTest with Xcode 16.4 on macOS 15. Both jobs have read-only repository
   permissions, disabled checkout credential persistence, bounded timeouts, and
   immutable action revisions.
 
@@ -69,6 +70,9 @@ The project uses Swift 5 and has no third-party package dependencies.
   contract checks. It also enforces Swift 5, the tvOS 12 deployment floor,
   modern UIKit launch APIs, and hosted Xcode compilation.
 - Static checks also require completed canonical plans under `docs/plans`.
+- `make test` executes three appearance-presentation tests on the Apple TV 4K
+  (3rd generation) tvOS 18.5 simulator when Xcode is available and reports an
+  explicit skip on non-macOS hosts.
 - `make build` compiles the Debug app for the tvOS simulator when Xcode is
   available and reports an explicit skip on non-macOS hosts.
 
@@ -125,6 +129,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   contract gate.
 - See `docs/plans/2026-06-10-modern-xcode-build.md` for the Swift 5 and hosted
   Xcode build baseline.
+- See `docs/plans/2026-06-12-executable-appearance-tests.md` for the executable
+  XCTest baseline.
 
 ## Contributing
 

@@ -4,6 +4,35 @@
 
 import UIKit
 
+struct AppearancePresentation {
+    let text: String
+    let backgroundColor: UIColor
+    let textColor: UIColor
+
+    static func resolve(for style: UIUserInterfaceStyle) -> AppearancePresentation {
+        switch style {
+        case .dark:
+            return AppearancePresentation(
+                text: "Dark Mode",
+                backgroundColor: .black,
+                textColor: .white
+            )
+        case .light:
+            return AppearancePresentation(
+                text: "Light Mode",
+                backgroundColor: .white,
+                textColor: .black
+            )
+        default:
+            return AppearancePresentation(
+                text: "Automatic Mode",
+                backgroundColor: .darkGray,
+                textColor: .white
+            )
+        }
+    }
+}
+
 final class ViewController: UIViewController {
 
     private let appearanceLabel = UILabel()
@@ -51,20 +80,14 @@ final class ViewController: UIViewController {
     }
 
     private func updateAppearance(for traitCollection: UITraitCollection) {
-        switch traitCollection.userInterfaceStyle {
-        case .dark:
-            setAppearance(text: "Dark Mode",
-                          backgroundColor: UIColor.black,
-                          textColor: UIColor.white)
-        case .light:
-            setAppearance(text: "Light Mode",
-                          backgroundColor: UIColor.white,
-                          textColor: UIColor.black)
-        default:
-            setAppearance(text: "Automatic Mode",
-                          backgroundColor: UIColor.darkGray,
-                          textColor: UIColor.white)
-        }
+        let presentation = AppearancePresentation.resolve(
+            for: traitCollection.userInterfaceStyle
+        )
+        setAppearance(
+            text: presentation.text,
+            backgroundColor: presentation.backgroundColor,
+            textColor: presentation.textColor
+        )
     }
 
     private func setAppearance(text: String, backgroundColor: UIColor, textColor: UIColor) {

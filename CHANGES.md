@@ -1,5 +1,14 @@
 # Changes
 
+## 2026-06-12
+
+- Added a tvOS XCTest target and shared scheme covering light, dark, and
+  fallback appearance presentation mapping.
+- Changed the hosted macOS gate from compile-only verification to executable
+  XCTest on the pinned tvOS 18.5 simulator.
+- Extended portable contracts across the source, test target, scheme,
+  Makefile, workflow, tests, and completed plan.
+
 ## 2026-06-10
 
 - Announced trait-driven appearance changes through VoiceOver after updating
