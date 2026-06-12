@@ -64,6 +64,8 @@ The project uses Swift 5 and has no third-party package dependencies.
 - CodeQL analyzes actions and Python without a build, and analyzes Swift from
   an explicit unsigned single-architecture `tvos-darkmode` app-target build
   instead of relying on Xcode target autodetection or the test-bearing scheme.
+  The instrumented Swift job has a bounded 25-minute window so analysis can
+  finish after the hosted target build.
 
 ## Testing and Verification
 

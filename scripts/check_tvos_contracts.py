@@ -110,7 +110,7 @@ jobs:
 
   analyze-swift:
     runs-on: macos-15
-    timeout-minutes: 15
+    timeout-minutes: 25
     env:
       DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
     steps:

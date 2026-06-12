@@ -19,6 +19,8 @@ contains an app and a hosted unit-test bundle.
 3. Analyze Swift on macOS with a manual, unsigned, single-architecture
    `xcodebuild -target tvos-darkmode` invocation rather than the shared scheme,
    whose BuildAction also includes the separately tested XCTest bundle.
+   Bound the instrumented Swift job at 25 minutes so the observed 14-minute
+   target build leaves time for CodeQL database finalization and analysis.
 4. Extend the portable baseline checker to reject workflow removal, mutable
    actions, permission drift, autobuild, or loss of the explicit tvOS build.
 5. Disable repository default setup only when the advanced workflow is ready
@@ -33,6 +35,11 @@ contains an app and a hosted unit-test bundle.
 - An external-working-directory Make invocation passed the same gate.
 - Four isolated mutations rejected Swift autobuild, a mutable CodeQL action,
   loss of the single-architecture bound, and reduced upload permissions.
-- Exact-head GitHub Actions functional and CodeQL runs
+- Functional run `27423765496` passed at `bc8455ad2c4243b14a48a388c369dff9ffc9b70b`.
+- CodeQL run `27423765176` proved the single app target builds successfully
+  under Swift instrumentation, but its 14m22s build exhausted the original
+  15-minute job bound before analysis; the bound was recalibrated to 25 minutes
+  without changing the analyzed target, architecture, or source coverage.
+- Exact-head CodeQL verification after timeout calibration.
 - `python3 -m py_compile scripts/check_tvos_contracts.py` and
   `git diff --check` passed.

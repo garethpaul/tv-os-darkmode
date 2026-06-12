@@ -11,6 +11,8 @@
 - Replaced ambiguous default-setup Swift CodeQL autobuild with a pinned
   advanced workflow that manually builds the unsigned tvOS app target while
   preserving actions and Python analysis.
+- Calibrated the instrumented Swift CodeQL job to a 25-minute bound after the
+  hosted app-target build succeeded in 14m22s but left no analysis headroom.
 
 ## 2026-06-10
 
