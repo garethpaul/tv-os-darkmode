@@ -40,6 +40,10 @@ contains an app and a hosted unit-test bundle.
   under Swift instrumentation, but its 14m22s build exhausted the original
   15-minute job bound before analysis; the bound was recalibrated to 25 minutes
   without changing the analyzed target, architecture, or source coverage.
-- Exact-head CodeQL verification after timeout calibration.
+- At exact head `3ce7b07f71fe236165405749e8cc1c2ecb1dcda2`, functional
+  run `27424962418` passed and CodeQL run `27424962453` passed actions,
+  Python, and Swift analysis. The Swift job completed in 15m46s, including a
+  successful 13m43s instrumented app-target build, within the calibrated
+  25-minute bound.
 - `python3 -m py_compile scripts/check_tvos_contracts.py` and
   `git diff --check` passed.
