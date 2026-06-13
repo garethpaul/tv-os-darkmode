@@ -2,6 +2,8 @@
 
 ## 2026-06-13
 
+- Added hosted controller-level coverage for dark-to-light and light-to-dark
+  trait transitions, including visible and accessible appearance state.
 - Added controller-level tvOS XCTest for dark and light rendered hierarchy,
   colors, text, and accessibility identifiers without exposing private state.
 - Prevented initial or unchanged trait callbacks from repeating the appearance

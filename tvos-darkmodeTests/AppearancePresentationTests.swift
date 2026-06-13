@@ -69,6 +69,26 @@ final class AppearancePresentationTests: XCTestCase {
         )
     }
 
+    func testDarkControllerRendersLightAppearanceAfterTraitChange() {
+        assertControllerTransition(
+            from: .dark,
+            to: .light,
+            text: "Light Mode",
+            backgroundColor: .white,
+            textColor: .black
+        )
+    }
+
+    func testLightControllerRendersDarkAppearanceAfterTraitChange() {
+        assertControllerTransition(
+            from: .light,
+            to: .dark,
+            text: "Dark Mode",
+            backgroundColor: .black,
+            textColor: .white
+        )
+    }
+
     private func assertController(
         style: UIUserInterfaceStyle,
         text: String,
@@ -84,6 +104,61 @@ final class AppearancePresentationTests: XCTestCase {
         )
         controller.loadViewIfNeeded()
 
+        assertControllerAppearance(
+            controller,
+            style: style,
+            text: text,
+            backgroundColor: backgroundColor,
+            textColor: textColor
+        )
+    }
+
+    private func assertControllerTransition(
+        from initialStyle: UIUserInterfaceStyle,
+        to currentStyle: UIUserInterfaceStyle,
+        text: String,
+        backgroundColor: UIColor,
+        textColor: UIColor
+    ) {
+        let container = UIViewController()
+        let controller = ViewController()
+        container.addChild(controller)
+        container.setOverrideTraitCollection(
+            UITraitCollection(userInterfaceStyle: initialStyle),
+            forChild: controller
+        )
+        controller.loadViewIfNeeded()
+
+        let initialPresentation = AppearancePresentation.resolve(for: initialStyle)
+        assertControllerAppearance(
+            controller,
+            style: initialStyle,
+            text: initialPresentation.text,
+            backgroundColor: initialPresentation.backgroundColor,
+            textColor: initialPresentation.textColor
+        )
+
+        container.setOverrideTraitCollection(
+            UITraitCollection(userInterfaceStyle: currentStyle),
+            forChild: controller
+        )
+
+        assertControllerAppearance(
+            controller,
+            style: currentStyle,
+            text: text,
+            backgroundColor: backgroundColor,
+            textColor: textColor
+        )
+    }
+
+    private func assertControllerAppearance(
+        _ controller: ViewController,
+        style: UIUserInterfaceStyle,
+        text: String,
+        backgroundColor: UIColor,
+        textColor: UIColor
+    ) {
         XCTAssertEqual(controller.traitCollection.userInterfaceStyle, style)
         XCTAssertEqual(controller.view.accessibilityIdentifier, "appearance-state-root-view")
         let label = controller.view.subviews

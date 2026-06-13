@@ -19,6 +19,7 @@ MODERN_XCODE_PLAN = DOCS_PLANS / "2026-06-10-modern-xcode-build.md"
 EXECUTABLE_TEST_PLAN = DOCS_PLANS / "2026-06-12-executable-appearance-tests.md"
 CODEQL_PLAN = DOCS_PLANS / "2026-06-12-codeql-manual-swift-build.md"
 INITIAL_ANNOUNCEMENT_PLAN = DOCS_PLANS / "2026-06-13-initial-appearance-announcement.md"
+TRAIT_TRANSITION_PLAN = DOCS_PLANS / "2026-06-13-controller-trait-transition-rendering.md"
 CI_WORKFLOW = ROOT / ".github" / "workflows" / "check.yml"
 CODEQL_WORKFLOW = ROOT / ".github" / "workflows" / "codeql.yml"
 SHARED_SCHEME = ROOT / "tvos-darkmode.xcodeproj" / "xcshareddata" / "xcschemes" / "tvos-darkmode.xcscheme"
@@ -171,6 +172,10 @@ def check_docs_plans():
     require(
         INITIAL_ANNOUNCEMENT_PLAN.exists(),
         "docs/plans/2026-06-13-initial-appearance-announcement.md is missing",
+    )
+    require(
+        TRAIT_TRANSITION_PLAN.exists(),
+        "docs/plans/2026-06-13-controller-trait-transition-rendering.md is missing",
     )
     plans = sorted(DOCS_PLANS.glob("*.md")) if DOCS_PLANS.exists() else []
     require(plans, "docs/plans must contain at least one completed plan")
@@ -401,6 +406,8 @@ def check_executable_tests():
         "testDarkToLightStyleChangeAnnounces",
         "testDarkControllerRendersAppearanceHierarchy",
         "testLightControllerRendersAppearanceHierarchy",
+        "testDarkControllerRendersLightAppearanceAfterTraitChange",
+        "testLightControllerRendersDarkAppearanceAfterTraitChange",
         'XCTAssertEqual(presentation.text, "Dark Mode")',
         'XCTAssertEqual(presentation.text, "Light Mode")',
         'XCTAssertEqual(presentation.text, "Automatic Mode")',
@@ -408,6 +415,14 @@ def check_executable_tests():
         "container.setOverrideTraitCollection(",
         "UITraitCollection(userInterfaceStyle: style)",
         "controller.loadViewIfNeeded()",
+        "UITraitCollection(userInterfaceStyle: initialStyle)",
+        "UITraitCollection(userInterfaceStyle: currentStyle)",
+        "let initialPresentation = AppearancePresentation.resolve(for: initialStyle)",
+        "style: initialStyle",
+        "text: initialPresentation.text",
+        "backgroundColor: initialPresentation.backgroundColor",
+        "textColor: initialPresentation.textColor",
+        "style: currentStyle",
         "XCTAssertEqual(controller.traitCollection.userInterfaceStyle, style)",
         'XCTAssertEqual(controller.view.accessibilityIdentifier, "appearance-state-root-view")',
         ".compactMap { $0 as? UILabel }",
@@ -418,7 +433,26 @@ def check_executable_tests():
         "XCTAssertEqual(controller.view.backgroundColor, backgroundColor)",
     ):
         require(fragment in tests, f"XCTest coverage is missing: {fragment}")
+    for test_name, initial_style, current_style in (
+        ("testDarkControllerRendersLightAppearanceAfterTraitChange", "dark", "light"),
+        ("testLightControllerRendersDarkAppearanceAfterTraitChange", "light", "dark"),
+    ):
+        require(
+            re.search(
+                rf"func {test_name}\(\).*?assertControllerTransition\(\s*"
+                rf"from: \.{initial_style},\s*to: \.{current_style},",
+                tests,
+                re.DOTALL,
+            ),
+            f"{test_name} must preserve its {initial_style}-to-{current_style} transition",
+        )
     require("XCTFail" not in tests, "XCTest coverage must not contain placeholder failures")
+    for path, fragment in (
+        ("README.md", "bidirectional trait-transition rendering tests"),
+        ("VISION.md", "dark-to-light and light-to-dark rendering covered"),
+        ("CHANGES.md", "controller-level coverage for dark-to-light and light-to-dark"),
+    ):
+        require(fragment in read_text(path), f"{path} must document controller trait-transition coverage")
 
 
 def check_manual_verification_docs():

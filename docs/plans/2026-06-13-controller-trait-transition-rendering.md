@@ -1,6 +1,6 @@
 # Controller Trait Transition Rendering
 
-## Status: Planned
+## Status: Completed
 
 ## Context
 
@@ -65,3 +65,26 @@ the completed validation evidence.
   `traitCollectionDidChange` in this change.
 - Do not add UI-test infrastructure, screenshots, network behavior, or third-
   party dependencies.
+
+## Work Completed
+
+- Added dark-to-light and light-to-dark tests around the real loaded controller
+  hierarchy.
+- Reused one hierarchy assertion for effective style, visible text,
+  accessibility text, foreground color, and root background color.
+- Extended the portable checker and maintenance docs to preserve both
+  transition directions and their initial/final style pairings.
+
+## Verification
+
+- `make check` passed the project, plist, asset, workflow, plan, source, and
+  executable-test contracts under a 60-second hard timeout. On this Linux host,
+  the Makefile truthfully reported that tvOS XCTest and build execution were
+  skipped because `xcodebuild` is unavailable.
+- Focused hostile mutations for either missing transition test, reversed style
+  pairings, removed final hierarchy assertions, documentation drift, and stale
+  plan status were rejected from a passing portable baseline.
+- `git diff --check`, intended-path, generated-artifact, structured-file, and
+  changed-line secret-pattern audits passed before shipment.
+- Exact-head hosted tvOS XCTest remains required on the pull request because it
+  is the executable macOS validation environment for this repository.
