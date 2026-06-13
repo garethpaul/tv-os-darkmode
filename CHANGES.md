@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-13
+
+- Prevented initial or unchanged trait callbacks from repeating the appearance
+  update and VoiceOver announcement, with executable transition-decision tests.
+
 ## 2026-06-12
 
 - Added a tvOS XCTest target and shared scheme covering light, dark, and

@@ -18,6 +18,7 @@ CI_PLAN = DOCS_PLANS / "2026-06-10-ci-baseline.md"
 MODERN_XCODE_PLAN = DOCS_PLANS / "2026-06-10-modern-xcode-build.md"
 EXECUTABLE_TEST_PLAN = DOCS_PLANS / "2026-06-12-executable-appearance-tests.md"
 CODEQL_PLAN = DOCS_PLANS / "2026-06-12-codeql-manual-swift-build.md"
+INITIAL_ANNOUNCEMENT_PLAN = DOCS_PLANS / "2026-06-13-initial-appearance-announcement.md"
 CI_WORKFLOW = ROOT / ".github" / "workflows" / "check.yml"
 CODEQL_WORKFLOW = ROOT / ".github" / "workflows" / "codeql.yml"
 SHARED_SCHEME = ROOT / "tvos-darkmode.xcodeproj" / "xcshareddata" / "xcschemes" / "tvos-darkmode.xcscheme"
@@ -166,6 +167,10 @@ def check_docs_plans():
     require(
         CODEQL_PLAN.exists(),
         "docs/plans/2026-06-12-codeql-manual-swift-build.md is missing",
+    )
+    require(
+        INITIAL_ANNOUNCEMENT_PLAN.exists(),
+        "docs/plans/2026-06-13-initial-appearance-announcement.md is missing",
     )
     plans = sorted(DOCS_PLANS.glob("*.md")) if DOCS_PLANS.exists() else []
     require(plans, "docs/plans must contain at least one completed plan")
@@ -324,6 +329,16 @@ def check_visible_appearance_state():
         "appearance state must update before its accessibility announcement",
     )
     require(
+        "static func shouldAnnounceChange(" in view_controller
+        and "guard let previousStyle = previousStyle else" in view_controller
+        and "return previousStyle != currentStyle" in view_controller,
+        "appearance announcements must require a known, changed previous style",
+    )
+    require(
+        "AppearancePresentation.shouldAnnounceChange(" in trait_change.group(0),
+        "trait changes must use the tested announcement predicate",
+    )
+    require(
         "traitCollection.responds(to:" not in view_controller,
         "tvOS 12 appearance handling must not rely on Objective-C selector checks",
     )
@@ -380,6 +395,10 @@ def check_executable_tests():
         "testDarkAppearanceUsesWhiteTextOnBlack",
         "testLightAppearanceUsesBlackTextOnWhite",
         "testUnspecifiedAppearanceUsesAutomaticFallback",
+        "testMissingPreviousStyleDoesNotAnnounce",
+        "testUnchangedStyleDoesNotAnnounce",
+        "testLightToDarkStyleChangeAnnounces",
+        "testDarkToLightStyleChangeAnnounces",
         'XCTAssertEqual(presentation.text, "Dark Mode")',
         'XCTAssertEqual(presentation.text, "Light Mode")',
         'XCTAssertEqual(presentation.text, "Automatic Mode")',

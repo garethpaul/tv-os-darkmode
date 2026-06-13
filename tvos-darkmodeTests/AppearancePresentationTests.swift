@@ -26,4 +26,28 @@ final class AppearancePresentationTests: XCTestCase {
         XCTAssertEqual(presentation.backgroundColor, .darkGray)
         XCTAssertEqual(presentation.textColor, .white)
     }
+
+    func testMissingPreviousStyleDoesNotAnnounce() {
+        XCTAssertFalse(
+            AppearancePresentation.shouldAnnounceChange(from: nil, to: .dark)
+        )
+    }
+
+    func testUnchangedStyleDoesNotAnnounce() {
+        XCTAssertFalse(
+            AppearancePresentation.shouldAnnounceChange(from: .dark, to: .dark)
+        )
+    }
+
+    func testLightToDarkStyleChangeAnnounces() {
+        XCTAssertTrue(
+            AppearancePresentation.shouldAnnounceChange(from: .light, to: .dark)
+        )
+    }
+
+    func testDarkToLightStyleChangeAnnounces() {
+        XCTAssertTrue(
+            AppearancePresentation.shouldAnnounceChange(from: .dark, to: .light)
+        )
+    }
 }

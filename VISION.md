@@ -23,6 +23,7 @@ Priority:
 - Keep appearance labels display-only and non-interactive
 - Keep appearance labels described for assistive technologies
 - Announce live appearance changes to assistive technologies
+- Avoid duplicate announcements during initial or unchanged appearance callbacks
 - Keep the root appearance view identifiable for simulator/UI verification
 - Keep appearance text scaled within the tvOS viewport
 - Keep appearance text bounded inside the tvOS viewport

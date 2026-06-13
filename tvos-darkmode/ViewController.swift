@@ -31,6 +31,16 @@ struct AppearancePresentation {
             )
         }
     }
+
+    static func shouldAnnounceChange(
+        from previousStyle: UIUserInterfaceStyle?,
+        to currentStyle: UIUserInterfaceStyle
+    ) -> Bool {
+        guard let previousStyle = previousStyle else {
+            return false
+        }
+        return previousStyle != currentStyle
+    }
 }
 
 final class ViewController: UIViewController {
@@ -47,7 +57,10 @@ final class ViewController: UIViewController {
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
 
-        guard traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle else {
+        guard AppearancePresentation.shouldAnnounceChange(
+            from: previousTraitCollection?.userInterfaceStyle,
+            to: traitCollection.userInterfaceStyle
+        ) else {
             return
         }
 
