@@ -31,6 +31,7 @@ Priority:
 - Keep app delegate signatures aligned with the checked-in Swift version
 - Keep the Swift 5 and tvOS 12 project baseline buildable with Xcode 16.4
 - Keep light, dark, and fallback appearance mapping covered by hosted XCTest
+- Keep dark and light controller hierarchy rendering covered by hosted XCTest
 - Keep completed maintenance plans under `docs/plans`
 - Keep GitHub Actions running both portable contracts and hosted XCTest
 

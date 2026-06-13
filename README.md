@@ -75,9 +75,9 @@ The project uses Swift 5 and has no third-party package dependencies.
   contract checks. It also enforces Swift 5, the tvOS 12 deployment floor,
   modern UIKit launch APIs, and hosted Xcode compilation.
 - Static checks also require completed canonical plans under `docs/plans`.
-- `make test` executes three appearance-presentation tests on the Apple TV 4K
-  (3rd generation) tvOS 18.5 simulator when Xcode is available and reports an
-  explicit skip on non-macOS hosts.
+- `make test` executes resolver, announcement, and dark/light controller
+  hierarchy tests on the Apple TV 4K (3rd generation) tvOS 18.5 simulator when
+  Xcode is available and reports an explicit skip on non-macOS hosts.
 - `make build` compiles the Debug app for the tvOS simulator when Xcode is
   available and reports an explicit skip on non-macOS hosts.
 
@@ -140,6 +140,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   Xcode build baseline.
 - See `docs/plans/2026-06-12-executable-appearance-tests.md` for the executable
   XCTest baseline.
+- See `docs/plans/2026-06-13-controller-rendering-tests.md` for controller-level
+  dark/light hierarchy assertions and their non-visual boundary.
 - See `docs/plans/2026-06-12-codeql-manual-swift-build.md` for the explicit
   Swift CodeQL build baseline.
 

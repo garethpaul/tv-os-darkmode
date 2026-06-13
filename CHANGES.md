@@ -2,6 +2,8 @@
 
 ## 2026-06-13
 
+- Added controller-level tvOS XCTest for dark and light rendered hierarchy,
+  colors, text, and accessibility identifiers without exposing private state.
 - Prevented initial or unchanged trait callbacks from repeating the appearance
   update and VoiceOver announcement, with executable transition-decision tests.
 

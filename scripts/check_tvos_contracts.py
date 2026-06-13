@@ -399,9 +399,23 @@ def check_executable_tests():
         "testUnchangedStyleDoesNotAnnounce",
         "testLightToDarkStyleChangeAnnounces",
         "testDarkToLightStyleChangeAnnounces",
+        "testDarkControllerRendersAppearanceHierarchy",
+        "testLightControllerRendersAppearanceHierarchy",
         'XCTAssertEqual(presentation.text, "Dark Mode")',
         'XCTAssertEqual(presentation.text, "Light Mode")',
         'XCTAssertEqual(presentation.text, "Automatic Mode")',
+        "container.addChild(controller)",
+        "container.setOverrideTraitCollection(",
+        "UITraitCollection(userInterfaceStyle: style)",
+        "controller.loadViewIfNeeded()",
+        "XCTAssertEqual(controller.traitCollection.userInterfaceStyle, style)",
+        'XCTAssertEqual(controller.view.accessibilityIdentifier, "appearance-state-root-view")',
+        ".compactMap { $0 as? UILabel }",
+        '.first { $0.accessibilityIdentifier == "appearance-state-label" }',
+        "XCTAssertEqual(label?.text, text)",
+        "XCTAssertEqual(label?.accessibilityLabel, text)",
+        "XCTAssertEqual(label?.textColor, textColor)",
+        "XCTAssertEqual(controller.view.backgroundColor, backgroundColor)",
     ):
         require(fragment in tests, f"XCTest coverage is missing: {fragment}")
     require("XCTFail" not in tests, "XCTest coverage must not contain placeholder failures")

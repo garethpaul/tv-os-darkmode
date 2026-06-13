@@ -6,7 +6,7 @@ date: 2026-06-13
 
 # Controller Appearance Rendering Tests
 
-## Status: In Progress
+## Status: Completed
 
 ## Context
 
@@ -16,8 +16,8 @@ resolved state into the real label, root view, and accessibility identifiers.
 
 ## Requirements
 
-- R1. Instantiate `ViewController` under dark and light interface-style
-  overrides and load its view hierarchy.
+- R1. Instantiate `ViewController` under tvOS-compatible parent trait
+  overrides for dark and light styles and load its view hierarchy.
 - R2. Verify the actual appearance label text, text color, accessibility label,
   and accessibility identifier for both styles.
 - R3. Verify the root view background color and accessibility identifier.
@@ -57,8 +57,11 @@ resolved state into the real label, root view, and accessibility identifiers.
 
 ## Verification
 
-- `make check` on Linux with truthful XCTest/app-build skips
-- Hosted macOS 15, Xcode 16.4, tvOS 18.5 XCTest on the exact pushed head
-- Hostile mutations removing either style test or hierarchy assertion
+- `make check` on Python 3.12.8 passed all portable contracts with truthful
+  XCTest and app-build skips because Xcode is unavailable on this Linux host.
+- Hostile mutations removing either style test or hierarchy assertion were
+  rejected.
 - Python compilation, structured-file parsing, `git diff --check`, and focused
-  secret/artifact review
+  secret/artifact review passed.
+- Hosted macOS 15, Xcode 16.4, tvOS 18.5 XCTest on the exact pushed head remains
+  the required executable merge gate.
