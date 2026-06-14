@@ -1,6 +1,6 @@
 # Make Root Override Protection
 
-## Status: Planned
+## Status: Completed
 
 ## Context
 
@@ -74,12 +74,32 @@ This change does not modify Swift logic, controller lifecycle, trait handling,
 VoiceOver behavior, storyboard/assets, project settings, schemes, tests,
 workflow policy, CodeQL, SDK versions, or deployment behavior.
 
-## Verification Plan
+## Work Completed
 
-- Run focused static contracts and Make dry-run checks.
-- Exercise all aliases from two working directories under hostile root
-  assignments while preserving explicit interpreter and destination selection.
-- Reject eight focused structural and evidence mutations.
-- Run `make check` with an explicit timeout and document local Xcode availability.
-- Review the exact plan-scoped diff and audit generated artifacts, changed-line
-  secrets, whitespace, and protected Swift/project/workflow paths.
+- Protected the derived repository root with GNU Make's `override` directive
+  while preserving configurable Python and simulator destination selection.
+- Added declaration-count, ordering, alias, checker/Xcode-path, README, and plan
+  contracts to the canonical tvOS checker.
+- Indexed the completed evidence without changing Swift, project, scheme,
+  workflow, CodeQL, SDK, or accessibility behavior.
+
+## Verification Results
+
+- All five public aliases passed dry-run verification from repository and
+  external working directories under hostile environment and command-line
+  `ROOT` assignments, for 20 bounded cases; explicit `PYTHON` and
+  `TVOS_DESTINATION` overrides remained effective.
+- Eight declaration protection, duplicate assignment, ordering, alias,
+  checker-path, README, missing-plan, and incomplete-plan mutations were
+  rejected.
+- A disposable exact-source snapshot passed the complete `make check` static
+  path with eight grouped tvOS contract checks and the documented no-Xcode test
+  and build skips.
+- The completed plan record passed the same gate from the repository and an
+  external working directory.
+- Hosted Xcode 16.4 tvOS XCTest and build remain the native exact-head authority.
+- Plan-aware correctness, build-integrity, tvOS, accessibility, testing,
+  maintainability, reliability, and project-standards review found no
+  actionable findings.
+- Exact diff, protected Swift/project/scheme/workflow/asset path,
+  generated-artifact, changed-line secret, and whitespace audits passed.

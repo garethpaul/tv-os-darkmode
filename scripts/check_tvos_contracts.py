@@ -20,6 +20,7 @@ EXECUTABLE_TEST_PLAN = DOCS_PLANS / "2026-06-12-executable-appearance-tests.md"
 CODEQL_PLAN = DOCS_PLANS / "2026-06-12-codeql-manual-swift-build.md"
 INITIAL_ANNOUNCEMENT_PLAN = DOCS_PLANS / "2026-06-13-initial-appearance-announcement.md"
 TRAIT_TRANSITION_PLAN = DOCS_PLANS / "2026-06-13-controller-trait-transition-rendering.md"
+ROOT_OVERRIDE_PLAN = DOCS_PLANS / "2026-06-14-make-root-override-protection.md"
 CI_WORKFLOW = ROOT / ".github" / "workflows" / "check.yml"
 CODEQL_WORKFLOW = ROOT / ".github" / "workflows" / "codeql.yml"
 SHARED_SCHEME = ROOT / "tvos-darkmode.xcodeproj" / "xcshareddata" / "xcschemes" / "tvos-darkmode.xcscheme"
@@ -176,6 +177,10 @@ def check_docs_plans():
     require(
         TRAIT_TRANSITION_PLAN.exists(),
         "docs/plans/2026-06-13-controller-trait-transition-rendering.md is missing",
+    )
+    require(
+        ROOT_OVERRIDE_PLAN.exists(),
+        "docs/plans/2026-06-14-make-root-override-protection.md is missing",
     )
     plans = sorted(DOCS_PLANS.glob("*.md")) if DOCS_PLANS.exists() else []
     require(plans, "docs/plans must contain at least one completed plan")
@@ -483,8 +488,27 @@ def check_ci_baseline_docs():
         "CodeQL workflow must match the exact pinned script and manual Swift build contract",
     )
     makefile = read_text("Makefile")
+    root_declaration = "override ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))"
+    root_assignments = re.findall(
+        r"^(?:override\s+)?ROOT\s*[:+?]?=", makefile, re.MULTILINE
+    )
+    require(
+        len(root_assignments) == 1 and makefile.count(root_declaration) == 1,
+        "Makefile must contain exactly one protected repository-root declaration",
+    )
+    require(
+        makefile.count(
+            f"{root_declaration}\nPYTHON ?= python3\n"
+            "TVOS_DESTINATION ?= platform=tvOS Simulator,name=Apple TV 4K (3rd generation),OS=18.5"
+        )
+        == 1,
+        "Makefile must keep the protected root before configurable tools",
+    )
     for contract in (
-        "ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))",
+        ".PHONY: build check lint test verify",
+        "test: lint",
+        "verify: lint test build",
+        "check: verify",
         '$(PYTHON) "$(ROOT)/scripts/check_tvos_contracts.py"',
         "TVOS_DESTINATION ?= platform=tvOS Simulator,name=Apple TV 4K (3rd generation),OS=18.5",
         'cd "$(ROOT)" && xcodebuild',
@@ -494,6 +518,10 @@ def check_ci_baseline_docs():
         "CODE_SIGNING_ALLOWED=NO test",
     ):
         require(contract in makefile, f"Makefile must support invocation outside the repository: {contract}")
+    require(
+        "docs/plans/2026-06-14-make-root-override-protection.md" in read_text("README.md"),
+        "README.md must index Make root override protection evidence",
+    )
     for docs_file in ("README.md", "VISION.md", "SECURITY.md", "CHANGES.md"):
         require("GitHub Actions" in read_text(docs_file), f"{docs_file} must document the GitHub Actions baseline")
 

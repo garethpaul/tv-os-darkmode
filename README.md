@@ -145,6 +145,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   dark/light hierarchy assertions and their non-visual boundary.
 - See `docs/plans/2026-06-13-controller-trait-transition-rendering.md` for
   loaded-controller dark/light transition coverage.
+- See `docs/plans/2026-06-14-make-root-override-protection.md` for repository-
+  anchored Make verification under hostile root assignments.
 - See `docs/plans/2026-06-12-codeql-manual-swift-build.md` for the explicit
   Swift CodeQL build baseline.
 
