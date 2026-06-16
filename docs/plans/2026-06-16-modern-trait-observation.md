@@ -1,6 +1,6 @@
 # Modern Trait Observation
 
-## Status: Planned
+## Status: Completed
 
 ## Context
 
@@ -65,4 +65,13 @@ registration is active.
 
 ## Verification Completed
 
-Pending implementation and bounded verification.
+- Portable `make check` passed from the repository and through the absolute
+  Makefile path from an external directory; Linux truthfully skipped native
+  tvOS build and XCTest because `xcodebuild` is unavailable.
+- Eight hostile modern trait observation mutations were rejected across the
+  focused registration, availability guards, shared routing, guidance, and
+  completed plan.
+- Exact diff, generated-artifact, secret, conflict-marker, binary, large-file,
+  and whitespace audits passed for the intended paths.
+- Native Xcode 16.4 compilation and tvOS 18.5 XCTest remain required from the
+  pull request's bounded hosted snapshot before this stack is merge-ready.

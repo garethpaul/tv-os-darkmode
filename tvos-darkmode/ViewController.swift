@@ -52,11 +52,29 @@ final class ViewController: UIViewController {
         view.accessibilityIdentifier = "appearance-state-root-view"
         configureAppearanceLabel()
         updateAppearance(for: traitCollection)
+        configureAppearanceObservation()
+    }
+
+    private func configureAppearanceObservation() {
+        if #available(tvOS 17.0, *) {
+            registerForTraitChanges([UITraitUserInterfaceStyle.self]) {
+                (controller: ViewController, previousTraitCollection: UITraitCollection) in
+                controller.handleAppearanceTransition(from: previousTraitCollection)
+            }
+        }
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
 
+        if #available(tvOS 17.0, *) {
+            return
+        }
+
+        handleAppearanceTransition(from: previousTraitCollection)
+    }
+
+    private func handleAppearanceTransition(from previousTraitCollection: UITraitCollection?) {
         guard AppearancePresentation.shouldAnnounceChange(
             from: previousTraitCollection?.userInterfaceStyle,
             to: traitCollection.userInterfaceStyle

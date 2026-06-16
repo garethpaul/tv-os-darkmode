@@ -21,6 +21,7 @@ CODEQL_PLAN = DOCS_PLANS / "2026-06-12-codeql-manual-swift-build.md"
 INITIAL_ANNOUNCEMENT_PLAN = DOCS_PLANS / "2026-06-13-initial-appearance-announcement.md"
 TRAIT_TRANSITION_PLAN = DOCS_PLANS / "2026-06-13-controller-trait-transition-rendering.md"
 ROOT_OVERRIDE_PLAN = DOCS_PLANS / "2026-06-14-make-root-override-protection.md"
+MODERN_TRAIT_OBSERVATION_PLAN = DOCS_PLANS / "2026-06-16-modern-trait-observation.md"
 CI_WORKFLOW = ROOT / ".github" / "workflows" / "check.yml"
 CODEQL_WORKFLOW = ROOT / ".github" / "workflows" / "codeql.yml"
 SHARED_SCHEME = ROOT / "tvos-darkmode.xcodeproj" / "xcshareddata" / "xcschemes" / "tvos-darkmode.xcscheme"
@@ -182,6 +183,10 @@ def check_docs_plans():
         ROOT_OVERRIDE_PLAN.exists(),
         "docs/plans/2026-06-14-make-root-override-protection.md is missing",
     )
+    require(
+        MODERN_TRAIT_OBSERVATION_PLAN.exists(),
+        "docs/plans/2026-06-16-modern-trait-observation.md is missing",
+    )
     plans = sorted(DOCS_PLANS.glob("*.md")) if DOCS_PLANS.exists() else []
     require(plans, "docs/plans must contain at least one completed plan")
     for plan_path in plans:
@@ -327,6 +332,23 @@ def check_visible_appearance_state():
         and "argument: appearanceLabel.accessibilityLabel)" in view_controller,
         "appearance changes must announce the updated state to assistive technologies",
     )
+    modern_observation = re.search(
+        r"private func configureAppearanceObservation\(\).*?\n    \}",
+        view_controller,
+        re.DOTALL,
+    )
+    require(modern_observation is not None, "modern appearance observation must be configured")
+    require(
+        "if #available(tvOS 17.0, *)" in modern_observation.group(0)
+        and "registerForTraitChanges([UITraitUserInterfaceStyle.self])" in modern_observation.group(0)
+        and "controller.handleAppearanceTransition(from: previousTraitCollection)"
+        in modern_observation.group(0),
+        "tvOS 17 must register only user-interface-style changes through the shared handler",
+    )
+    require(
+        view_controller.count("registerForTraitChanges(") == 1,
+        "appearance observation must have exactly one focused modern registration",
+    )
     trait_change = re.search(
         r"override func traitCollectionDidChange.*?\n    \}",
         view_controller,
@@ -334,8 +356,23 @@ def check_visible_appearance_state():
     )
     require(trait_change is not None, "traitCollectionDidChange must remain implemented")
     require(
-        trait_change.group(0).index("updateAppearance(for: traitCollection)")
-        < trait_change.group(0).index("UIAccessibility.post(notification: .announcement,"),
+        "if #available(tvOS 17.0, *)" in trait_change.group(0)
+        and "return" in trait_change.group(0)
+        and "handleAppearanceTransition(from: previousTraitCollection)"
+        in trait_change.group(0),
+        "legacy trait changes must run only below tvOS 17 through the shared handler",
+    )
+    transition_handler = re.search(
+        r"private func handleAppearanceTransition.*?\n    \}",
+        view_controller,
+        re.DOTALL,
+    )
+    require(transition_handler is not None, "appearance transitions must use a shared handler")
+    require(
+        transition_handler.group(0).index("updateAppearance(for: traitCollection)")
+        < transition_handler.group(0).index(
+            "UIAccessibility.post(notification: .announcement,"
+        ),
         "appearance state must update before its accessibility announcement",
     )
     require(
@@ -345,7 +382,7 @@ def check_visible_appearance_state():
         "appearance announcements must require a known, changed previous style",
     )
     require(
-        "AppearancePresentation.shouldAnnounceChange(" in trait_change.group(0),
+        "AppearancePresentation.shouldAnnounceChange(" in transition_handler.group(0),
         "trait changes must use the tested announcement predicate",
     )
     require(
@@ -458,6 +495,20 @@ def check_executable_tests():
         ("CHANGES.md", "controller-level coverage for dark-to-light and light-to-dark"),
     ):
         require(fragment in read_text(path), f"{path} must document controller trait-transition coverage")
+    for path, fragment in (
+        ("README.md", "focused trait registration on tvOS 17"),
+        ("VISION.md", "focused tvOS 17 trait registration"),
+        ("CHANGES.md", "focused tvOS 17 trait registration"),
+    ):
+        require(fragment in read_text(path), f"{path} must document modern trait observation")
+    require(
+        "docs/plans/2026-06-16-modern-trait-observation.md" in read_text("README.md"),
+        "README.md must index modern trait observation evidence",
+    )
+    require(
+        "wiring behavior to `traitCollectionDidChange`" not in read_text("VISION.md"),
+        "VISION.md must not describe the legacy callback as the sole observation path",
+    )
 
 
 def check_manual_verification_docs():

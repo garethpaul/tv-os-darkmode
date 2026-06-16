@@ -79,6 +79,8 @@ The project uses Swift 5 and has no third-party package dependencies.
   and bidirectional trait-transition rendering tests on the Apple TV 4K (3rd
   generation) tvOS 18.5 simulator when Xcode is available and reports an
   explicit skip on non-macOS hosts.
+- Appearance changes use focused trait registration on tvOS 17 and later while
+  preserving the `traitCollectionDidChange` fallback for the tvOS 12 floor.
 - `make build` compiles the Debug app for the tvOS simulator when Xcode is
   available and reports an explicit skip on non-macOS hosts.
 
@@ -147,6 +149,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   loaded-controller dark/light transition coverage.
 - See `docs/plans/2026-06-14-make-root-override-protection.md` for repository-
   anchored Make verification under hostile root assignments.
+- See `docs/plans/2026-06-16-modern-trait-observation.md` for focused modern
+  appearance observation with the legacy deployment-floor fallback.
 - See `docs/plans/2026-06-12-codeql-manual-swift-build.md` for the explicit
   Swift CodeQL build baseline.
 

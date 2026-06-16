@@ -4,7 +4,8 @@ tvOS Dark Mode is a small Swift sample that observes trait collection changes
 and distinguishes light and dark user interface styles.
 
 The repository is useful as a minimal tvOS project for detecting appearance
-changes and wiring behavior to `traitCollectionDidChange`.
+changes through focused modern trait registration with a legacy deployment-
+floor fallback.
 
 The goal is to keep the sample focused on interface-style detection and make
 the supported tvOS/Xcode context clear.
@@ -34,6 +35,7 @@ Priority:
 - Keep dark and light controller hierarchy rendering covered by hosted XCTest
 - Keep loaded-controller dark-to-light and light-to-dark rendering covered by
   hosted XCTest
+- Keep focused tvOS 17 trait registration with a tvOS 12 through 16 fallback
 - Keep completed maintenance plans under `docs/plans`
 - Keep GitHub Actions running both portable contracts and hosted XCTest
 
@@ -41,7 +43,8 @@ Next priorities:
 
 - Add device or simulator screenshots for light and dark appearances
 - Add simulator-backed UI verification and screenshots
-- Replace deprecated trait-change observation when the deployment floor allows
+- Validate the modern and legacy trait-observation paths on supported Apple
+  platform versions
 
 Contribution rules:
 

@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-16
+
+- Added focused tvOS 17 trait registration while preserving the tvOS 12 through
+  16 `traitCollectionDidChange` fallback through one transition handler.
+
 ## 2026-06-13
 
 - Added hosted controller-level coverage for dark-to-light and light-to-dark
