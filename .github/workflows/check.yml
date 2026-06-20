@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
@@ -28,7 +30,7 @@ jobs:
       - name: Run baseline
         run: make check
 
-  xcode-build:
+  xcode-test:
     runs-on: macos-15
     timeout-minutes: 15
     env:
@@ -36,5 +38,7 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-      - name: Compile tvOS app
-        run: make build
+        with:
+          persist-credentials: false
+      - name: Run tvOS XCTest
+        run: make test

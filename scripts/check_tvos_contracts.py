@@ -16,7 +16,132 @@ ROOT_IDENTIFIER_PLAN = DOCS_PLANS / "2026-06-09-root-view-identifier.md"
 APP_DELEGATE_LAUNCH_PLAN = DOCS_PLANS / "2026-06-09-app-delegate-launch-options.md"
 CI_PLAN = DOCS_PLANS / "2026-06-10-ci-baseline.md"
 MODERN_XCODE_PLAN = DOCS_PLANS / "2026-06-10-modern-xcode-build.md"
+EXECUTABLE_TEST_PLAN = DOCS_PLANS / "2026-06-12-executable-appearance-tests.md"
+CODEQL_PLAN = DOCS_PLANS / "2026-06-12-codeql-manual-swift-build.md"
+INITIAL_ANNOUNCEMENT_PLAN = DOCS_PLANS / "2026-06-13-initial-appearance-announcement.md"
+TRAIT_TRANSITION_PLAN = DOCS_PLANS / "2026-06-13-controller-trait-transition-rendering.md"
+ROOT_OVERRIDE_PLAN = DOCS_PLANS / "2026-06-14-make-root-override-protection.md"
+MODERN_TRAIT_OBSERVATION_PLAN = DOCS_PLANS / "2026-06-16-modern-trait-observation.md"
+DEEP_REVIEW_PLAN = DOCS_PLANS / "2026-06-19-tvos-lifecycle-deep-review.md"
 CI_WORKFLOW = ROOT / ".github" / "workflows" / "check.yml"
+CODEQL_WORKFLOW = ROOT / ".github" / "workflows" / "codeql.yml"
+SHARED_SCHEME = ROOT / "tvos-darkmode.xcodeproj" / "xcshareddata" / "xcschemes" / "tvos-darkmode.xcscheme"
+EXPECTED_WORKFLOW = """name: Check
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.12"
+      - name: Run baseline
+        run: make check
+
+  xcode-test:
+    runs-on: macos-15
+    timeout-minutes: 15
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+      - name: Run tvOS XCTest
+        run: make test
+"""
+EXPECTED_CODEQL_WORKFLOW = """name: CodeQL
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  schedule:
+    - cron: "23 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+concurrency:
+  group: codeql-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze-scripts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - actions
+          - python
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+      - name: Analyze
+        uses: github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
+
+  analyze-swift:
+    runs-on: macos-15
+    timeout-minutes: 25
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
+        with:
+          languages: swift
+          build-mode: manual
+      - name: Build tvOS app for analysis
+        run: >-
+          xcodebuild
+          -project tvos-darkmode.xcodeproj
+          -target tvos-darkmode
+          -destination "generic/platform=tvOS Simulator"
+          -configuration Debug
+          ARCHS=arm64
+          ONLY_ACTIVE_ARCH=YES
+          CODE_SIGNING_ALLOWED=NO
+          build
+      - name: Analyze
+        uses: github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4
+"""
 
 
 def fail(message):
@@ -39,6 +164,34 @@ def check_docs_plans():
     require(APP_DELEGATE_LAUNCH_PLAN.exists(), "docs/plans/2026-06-09-app-delegate-launch-options.md is missing")
     require(CI_PLAN.exists(), "docs/plans/2026-06-10-ci-baseline.md is missing")
     require(MODERN_XCODE_PLAN.exists(), "docs/plans/2026-06-10-modern-xcode-build.md is missing")
+    require(
+        EXECUTABLE_TEST_PLAN.exists(),
+        "docs/plans/2026-06-12-executable-appearance-tests.md is missing",
+    )
+    require(
+        CODEQL_PLAN.exists(),
+        "docs/plans/2026-06-12-codeql-manual-swift-build.md is missing",
+    )
+    require(
+        INITIAL_ANNOUNCEMENT_PLAN.exists(),
+        "docs/plans/2026-06-13-initial-appearance-announcement.md is missing",
+    )
+    require(
+        TRAIT_TRANSITION_PLAN.exists(),
+        "docs/plans/2026-06-13-controller-trait-transition-rendering.md is missing",
+    )
+    require(
+        ROOT_OVERRIDE_PLAN.exists(),
+        "docs/plans/2026-06-14-make-root-override-protection.md is missing",
+    )
+    require(
+        MODERN_TRAIT_OBSERVATION_PLAN.exists(),
+        "docs/plans/2026-06-16-modern-trait-observation.md is missing",
+    )
+    require(
+        DEEP_REVIEW_PLAN.exists(),
+        "docs/plans/2026-06-19-tvos-lifecycle-deep-review.md is missing",
+    )
     plans = sorted(DOCS_PLANS.glob("*.md")) if DOCS_PLANS.exists() else []
     require(plans, "docs/plans must contain at least one completed plan")
     for plan_path in plans:
@@ -54,8 +207,27 @@ def check_project_files_parse():
         info = plistlib.load(plist_file)
     require(info["UIMainStoryboardFile"] == "Main", "Info.plist must launch Main.storyboard")
     require(info["UIUserInterfaceStyle"] == "Automatic", "app must opt into automatic appearance")
+    scene_manifest = info["UIApplicationSceneManifest"]
+    require(
+        scene_manifest["UIApplicationSupportsMultipleScenes"] is False,
+        "the sample must remain single-scene",
+    )
+    scene_configurations = scene_manifest["UISceneConfigurations"][
+        "UIWindowSceneSessionRoleApplication"
+    ]
+    require(len(scene_configurations) == 1, "the app must define one window-scene configuration")
+    require(
+        scene_configurations[0]["UISceneDelegateClassName"]
+        == "$(PRODUCT_MODULE_NAME).SceneDelegate",
+        "the scene manifest must use SceneDelegate",
+    )
+    require(
+        scene_configurations[0]["UISceneStoryboardFile"] == "Main",
+        "the scene lifecycle must keep the Main storyboard",
+    )
 
     ET.parse(ROOT / "tvos-darkmode/Base.lproj/Main.storyboard")
+    ET.parse(SHARED_SCHEME)
 
     for path in (ROOT / "tvos-darkmode/Assets.xcassets").rglob("Contents.json"):
         json.loads(path.read_text(encoding="utf-8"))
@@ -65,13 +237,38 @@ def check_xcode_project_contracts():
     project = read_text("tvos-darkmode.xcodeproj/project.pbxproj")
     require("SDKROOT = appletvos;" in project, "project must target the tvOS SDK")
     require("TARGETED_DEVICE_FAMILY = 3;" in project, "project must remain tvOS-only")
-    require(project.count("SWIFT_VERSION = 5.0;") == 2, "both target configurations must use Swift 5")
     require(
-        project.count("TVOS_DEPLOYMENT_TARGET = 12.0;") == 2,
-        "both project configurations must target tvOS 12 or newer",
+        project.count("SWIFT_VERSION = 5.0;") == 4,
+        "app and test target configurations must use Swift 5",
+    )
+    require(
+        project.count("TVOS_DEPLOYMENT_TARGET = 12.0;") == 4,
+        "app and test configurations must target tvOS 12 or newer",
     )
     require("LastSwiftMigration = 1640;" in project, "project must record the Xcode 16.4 migration")
     require("ViewController.swift in Sources" in project, "ViewController must remain compiled")
+    require("SceneDelegate.swift in Sources" in project, "SceneDelegate must remain compiled")
+    for fragment in (
+        'productType = "com.apple.product-type.bundle.unit-test";',
+        "AppearancePresentationTests.swift in Sources",
+        'TEST_HOST = "$(BUILT_PRODUCTS_DIR)/tvos-darkmode.app/tvos-darkmode";',
+        "A12000000000000000000007 /* tvos-darkmodeTests */",
+    ):
+        require(fragment in project, f"Xcode test target is missing: {fragment}")
+
+    scheme = SHARED_SCHEME.read_text(encoding="utf-8")
+    for fragment in (
+        '<TestAction',
+        'BlueprintIdentifier = "A12000000000000000000007"',
+        'BuildableName = "tvos-darkmodeTests.xctest"',
+        'BlueprintName = "tvos-darkmodeTests"',
+        'skipped = "NO"',
+    ):
+        require(fragment in scheme, f"shared XCTest scheme is missing: {fragment}")
+    require(
+        scheme.count('BlueprintIdentifier = "A12000000000000000000007"') == 2,
+        "shared scheme must build and execute the test bundle",
+    )
 
 
 def check_app_delegate_contracts():
@@ -88,11 +285,19 @@ def check_app_delegate_contracts():
         "UIApplicationLaunchOptionsKey" not in app_delegate and "@UIApplicationMain" not in app_delegate,
         "AppDelegate must not use removed Swift 3 application APIs",
     )
+    scene_delegate = read_text("tvos-darkmode/SceneDelegate.swift")
+    require(
+        "@available(tvOS 13.0, *)" in scene_delegate
+        and "final class SceneDelegate: UIResponder, UIWindowSceneDelegate" in scene_delegate
+        and "var window: UIWindow?" in scene_delegate,
+        "SceneDelegate must provide the scene-based lifecycle while preserving tvOS 12 fallback",
+    )
 
 
 def check_visible_appearance_state():
     view_controller = read_text("tvos-darkmode/ViewController.swift")
 
+    require("@MainActor\nfinal class ViewController" in view_controller, "UI ownership must be main-actor isolated")
     require(
         "private let appearanceLabel = UILabel()" in view_controller,
         "ViewController must own a visible appearance label",
@@ -151,13 +356,25 @@ def check_visible_appearance_state():
         "appearance label must describe its appearance-state purpose to assistive technologies",
     )
     require(
-        view_controller.count("updateAppearance(for: traitCollection)") >= 2,
-        "appearance state must be applied on load and after trait changes",
+        "UIAccessibility.post(notification: .announcement," in view_controller
+        and "argument: presentation.text)" in view_controller,
+        "appearance changes must announce the updated state to assistive technologies",
+    )
+    modern_observation = re.search(
+        r"private func configureAppearanceObservation\(\).*?\n    \}",
+        view_controller,
+        re.DOTALL,
+    )
+    require(modern_observation is not None, "modern appearance observation must be configured")
+    require(
+        "if #available(tvOS 17.0, *)" in modern_observation.group(0)
+        and "registerForTraitChanges([UITraitUserInterfaceStyle.self])" in modern_observation.group(0)
+        and "controller.handleAppearanceTransition()" in modern_observation.group(0),
+        "tvOS 17 must register only user-interface-style changes through the shared handler",
     )
     require(
-        "UIAccessibility.post(notification: .announcement," in view_controller
-        and "argument: appearanceLabel.accessibilityLabel)" in view_controller,
-        "appearance changes must announce the updated state to assistive technologies",
+        view_controller.count("registerForTraitChanges(") == 1,
+        "appearance observation must have exactly one focused modern registration",
     )
     trait_change = re.search(
         r"override func traitCollectionDidChange.*?\n    \}",
@@ -166,35 +383,59 @@ def check_visible_appearance_state():
     )
     require(trait_change is not None, "traitCollectionDidChange must remain implemented")
     require(
-        trait_change.group(0).index("updateAppearance(for: traitCollection)")
-        < trait_change.group(0).index("UIAccessibility.post(notification: .announcement,"),
-        "appearance state must update before its accessibility announcement",
+        "if #available(tvOS 17.0, *)" in trait_change.group(0)
+        and "return" in trait_change.group(0)
+        and "handleAppearanceTransition()" in trait_change.group(0),
+        "legacy trait changes must run only below tvOS 17 through the shared handler",
+    )
+    require(
+        "struct AppearanceTransitionState" in view_controller
+        and "lastCommunicatedStyle" in view_controller
+        and "isVisible && isActive" in view_controller
+        and "appearanceState.transition(to: traitCollection.userInterfaceStyle)" in view_controller,
+        "appearance transitions must deduplicate and gate announcements by visibility and activity",
+    )
+    require(
+        "UIApplication.didBecomeActiveNotification" in view_controller
+        and "UIApplication.willResignActiveNotification" in view_controller
+        and "appearanceState.setVisible(true)" in view_controller
+        and "appearanceState.setVisible(false)" in view_controller
+        and "appearanceState.setActive(true)" in view_controller
+        and "appearanceState.setActive(false)" in view_controller,
+        "controller lifecycle must gate announcements across visibility and app activity",
+    )
+    require(
+        "if update.shouldRender" in view_controller
+        and "if update.shouldAnnounce" in view_controller
+        and view_controller.index("if update.shouldRender") < view_controller.index("if update.shouldAnnounce"),
+        "appearance rendering must occur before any announcement",
     )
     require(
         "traitCollection.responds(to:" not in view_controller,
         "tvOS 12 appearance handling must not rely on Objective-C selector checks",
     )
+    require("struct AppearancePresentation" in view_controller, "appearance mapping must be testable")
     require(
         all(fragment in view_controller for fragment in ["case .dark:", "case .light:", "default:"]),
-        "appearance update must handle dark, light, and fallback styles",
+        "appearance mapping must handle dark, light, and fallback styles",
     )
     for fragment, description in [
         (
-            'setAppearance(text: "Dark Mode",\n'
-            '                          backgroundColor: UIColor.black,\n'
-            '                          textColor: UIColor.white)',
+            'text: "Dark Mode",\n'
+            '                backgroundColor: .black,\n'
+            '                textColor: .white',
             "dark mode must use white text on black",
         ),
         (
-            'setAppearance(text: "Light Mode",\n'
-            '                          backgroundColor: UIColor.white,\n'
-            '                          textColor: UIColor.black)',
+            'text: "Light Mode",\n'
+            '                backgroundColor: .white,\n'
+            '                textColor: .black',
             "light mode must use black text on white",
         ),
         (
-            'setAppearance(text: "Automatic Mode",\n'
-            '                          backgroundColor: UIColor.darkGray,\n'
-            '                          textColor: UIColor.white)',
+            'text: "Automatic Mode",\n'
+            '                backgroundColor: .darkGray,\n'
+            '                textColor: .white',
             "fallback mode must use white text on dark gray",
         ),
     ]:
@@ -208,6 +449,95 @@ def check_visible_appearance_state():
             re.DOTALL,
         ),
         "appearance updates must change label text, accessibility text, text color, and background color",
+    )
+    require(
+        "AppearancePresentation.resolve(" in view_controller
+        and "text: presentation.text" in view_controller
+        and "backgroundColor: presentation.backgroundColor" in view_controller
+        and "textColor: presentation.textColor" in view_controller,
+        "ViewController must apply the tested appearance presentation",
+    )
+
+
+def check_executable_tests():
+    tests = read_text("tvos-darkmodeTests/AppearancePresentationTests.swift")
+    for fragment in (
+        "import XCTest",
+        "@testable import tvos_darkmode",
+        "testDarkAppearanceUsesWhiteTextOnBlack",
+        "testLightAppearanceUsesBlackTextOnWhite",
+        "testUnspecifiedAppearanceUsesAutomaticFallback",
+        "testInitialAppearanceRendersWithoutAnnouncement",
+        "testVisibleActiveTransitionRendersAndAnnouncesOnce",
+        "testInactiveTransitionDefersAnnouncementUntilReactivation",
+        "testHiddenTransitionDefersAnnouncementUntilVisible",
+        "testInactiveRoundTripBackToPresentedStyleDoesNotAnnounce",
+        "testDarkControllerRendersAppearanceHierarchy",
+        "testLightControllerRendersAppearanceHierarchy",
+        "testDarkControllerRendersLightAppearanceAfterTraitChange",
+        "testLightControllerRendersDarkAppearanceAfterTraitChange",
+        'XCTAssertEqual(presentation.text, "Dark Mode")',
+        'XCTAssertEqual(presentation.text, "Light Mode")',
+        'XCTAssertEqual(presentation.text, "Automatic Mode")',
+        "container.addChild(controller)",
+        "container.setOverrideTraitCollection(",
+        "UITraitCollection(userInterfaceStyle: style)",
+        "controller.loadViewIfNeeded()",
+        "UITraitCollection(userInterfaceStyle: initialStyle)",
+        "UITraitCollection(userInterfaceStyle: currentStyle)",
+        "let initialPresentation = AppearancePresentation.resolve(for: initialStyle)",
+        "style: initialStyle",
+        "text: initialPresentation.text",
+        "backgroundColor: initialPresentation.backgroundColor",
+        "textColor: initialPresentation.textColor",
+        "style: currentStyle",
+        "XCTAssertEqual(controller.traitCollection.userInterfaceStyle, style)",
+        'XCTAssertEqual(controller.view.accessibilityIdentifier, "appearance-state-root-view")',
+        ".compactMap { $0 as? UILabel }",
+        '.first { $0.accessibilityIdentifier == "appearance-state-label" }',
+        "XCTAssertEqual(label?.text, text)",
+        "XCTAssertEqual(label?.accessibilityLabel, text)",
+        "XCTAssertEqual(label?.textColor, textColor)",
+        "XCTAssertEqual(controller.view.backgroundColor, backgroundColor)",
+        "AppearanceTransitionState()",
+        "shouldRender: true, shouldAnnounce: false",
+        "shouldRender: true, shouldAnnounce: true",
+        "shouldRender: false, shouldAnnounce: true",
+    ):
+        require(fragment in tests, f"XCTest coverage is missing: {fragment}")
+    for test_name, initial_style, current_style in (
+        ("testDarkControllerRendersLightAppearanceAfterTraitChange", "dark", "light"),
+        ("testLightControllerRendersDarkAppearanceAfterTraitChange", "light", "dark"),
+    ):
+        require(
+            re.search(
+                rf"func {test_name}\(\).*?assertControllerTransition\(\s*"
+                rf"from: \.{initial_style},\s*to: \.{current_style},",
+                tests,
+                re.DOTALL,
+            ),
+            f"{test_name} must preserve its {initial_style}-to-{current_style} transition",
+        )
+    require("XCTFail" not in tests, "XCTest coverage must not contain placeholder failures")
+    for path, fragment in (
+        ("README.md", "bidirectional trait-transition rendering tests"),
+        ("VISION.md", "dark-to-light and light-to-dark rendering covered"),
+        ("CHANGES.md", "controller-level coverage for dark-to-light and light-to-dark"),
+    ):
+        require(fragment in read_text(path), f"{path} must document controller trait-transition coverage")
+    for path, fragment in (
+        ("README.md", "focused trait registration on tvOS 17"),
+        ("VISION.md", "focused tvOS 17 trait registration"),
+        ("CHANGES.md", "focused tvOS 17 trait registration"),
+    ):
+        require(fragment in read_text(path), f"{path} must document modern trait observation")
+    require(
+        "docs/plans/2026-06-16-modern-trait-observation.md" in read_text("README.md"),
+        "README.md must index modern trait observation evidence",
+    )
+    require(
+        "wiring behavior to `traitCollectionDidChange`" not in read_text("VISION.md"),
+        "VISION.md must not describe the legacy callback as the sole observation path",
     )
 
 
@@ -227,42 +557,55 @@ def check_manual_verification_docs():
 
 def check_ci_baseline_docs():
     require(CI_WORKFLOW.exists(), ".github/workflows/check.yml is missing")
+    require(CODEQL_WORKFLOW.exists(), ".github/workflows/codeql.yml is missing")
     workflow = CI_WORKFLOW.read_text(encoding="utf-8")
-    for contract in (
-        "branches:\n      - master",
-        "pull_request:",
-        "workflow_dispatch:",
-        "permissions:\n  contents: read",
-        "group: check-${{ github.workflow }}-${{ github.ref }}",
-        "cancel-in-progress: true",
-        "runs-on: ubuntu-24.04",
-        "runs-on: macos-15",
-        "timeout-minutes: 5",
-        "timeout-minutes: 15",
-        "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3",
-        "actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0",
-        'python-version: "3.12"',
-        "run: make check",
-        "DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer",
-        "run: make build",
-    ):
-        require(contract in workflow, f"CI workflow must include {contract!r}")
-    require(workflow.count("runs-on: ubuntu-24.04") == 1, "CI must have one fixed Ubuntu job")
-    require(workflow.count("runs-on: macos-15") == 1, "CI must have one fixed macOS build job")
+    codeql_workflow = CODEQL_WORKFLOW.read_text(encoding="utf-8")
     require(
-        workflow.count("actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3") == 2,
-        "both CI jobs must use the annotated checkout pin",
+        workflow == EXPECTED_WORKFLOW,
+        "CI workflow must match the exact credential-free static and Xcode build contract",
     )
-    require("ubuntu-latest" not in workflow and "macos-latest" not in workflow, "CI runners must not float")
-    require("@v" not in workflow, "CI workflow actions must use immutable commits")
+    require(
+        codeql_workflow == EXPECTED_CODEQL_WORKFLOW,
+        "CodeQL workflow must match the exact pinned script and manual Swift build contract",
+    )
     makefile = read_text("Makefile")
+    root_declaration = "override ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))"
+    root_assignments = re.findall(
+        r"^(?:override\s+)?ROOT\s*[:+?]?=", makefile, re.MULTILINE
+    )
+    require(
+        len(root_assignments) == 1 and makefile.count(root_declaration) == 1,
+        "Makefile must contain exactly one protected repository-root declaration",
+    )
+    require(
+        makefile.count(
+            f"{root_declaration}\nPYTHON ?= python3\n"
+            "TVOS_DESTINATION ?= platform=tvOS Simulator,name=Apple TV 4K (3rd generation)\n"
+            "DERIVED_DATA_PATH ?= $(ROOT)/.build/DerivedData"
+        )
+        == 1,
+        "Makefile must keep the protected root before configurable tools",
+    )
     for contract in (
-        "ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))",
+        ".PHONY: build check lint test verify",
+        "test: lint",
+        "verify: lint test build",
+        "check: verify",
         '$(PYTHON) "$(ROOT)/scripts/check_tvos_contracts.py"',
+        "TVOS_DESTINATION ?= platform=tvOS Simulator,name=Apple TV 4K (3rd generation)",
+        "DERIVED_DATA_PATH ?= $(ROOT)/.build/DerivedData",
         'cd "$(ROOT)" && xcodebuild',
         '-destination "generic/platform=tvOS Simulator"',
+        '-destination "$(TVOS_DESTINATION)"',
+        '-derivedDataPath "$(DERIVED_DATA_PATH)"',
+        "CODE_SIGNING_ALLOWED=NO",
+        "CODE_SIGNING_ALLOWED=NO test",
     ):
         require(contract in makefile, f"Makefile must support invocation outside the repository: {contract}")
+    require(
+        "docs/plans/2026-06-14-make-root-override-protection.md" in read_text("README.md"),
+        "README.md must index Make root override protection evidence",
+    )
     for docs_file in ("README.md", "VISION.md", "SECURITY.md", "CHANGES.md"):
         require("GitHub Actions" in read_text(docs_file), f"{docs_file} must document the GitHub Actions baseline")
 
@@ -274,13 +617,20 @@ def main():
         check_xcode_project_contracts,
         check_app_delegate_contracts,
         check_visible_appearance_state,
+        check_executable_tests,
         check_manual_verification_docs,
         check_ci_baseline_docs,
     ]
     try:
         for check in checks:
             check()
-    except (AssertionError, ET.ParseError, json.JSONDecodeError, plistlib.InvalidFileException) as exc:
+    except (
+        AssertionError,
+        ET.ParseError,
+        KeyError,
+        json.JSONDecodeError,
+        plistlib.InvalidFileException,
+    ) as exc:
         return fail(str(exc))
 
     print(f"tvOS static contracts passed ({len(checks)} checks).")

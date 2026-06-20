@@ -18,6 +18,7 @@ pass even when the checked-in project no longer built with a supported Xcode.
 - Keep portable verification available on Linux and from any working directory.
 - Enforce the toolchain, fixed runners, immutable actions, and build command in
   the static contract checker.
+- Keep hosted compilation unsigned with `CODE_SIGNING_ALLOWED=NO`.
 
 ## Work Completed
 
@@ -28,7 +29,8 @@ pass even when the checked-in project no longer built with a supported Xcode.
 - Modernized the appearance controller's Swift and accessibility syntax.
 - Added a macOS 15 job using Xcode 16.4 and a code-signing-disabled simulator
   build with an explicit generic tvOS Simulator destination, alongside the
-  fixed Ubuntu 24.04 contract job.
+  fixed Ubuntu 24.04 contract job. Both checkout steps disable credential
+  persistence.
 - Made Makefile paths resolve from the repository location.
 - Added static and mutation coverage for all new guarantees.
 

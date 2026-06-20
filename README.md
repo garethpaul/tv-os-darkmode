@@ -3,6 +3,11 @@
 <!-- README-OVERVIEW-IMAGE -->
 ![Project overview](docs/readme-overview.svg)
 
+## Device Preview
+
+<!-- DEVICE-PREVIEW-IMAGE -->
+![Device preview](docs/device-preview.svg)
+
 ## Overview
 
 `tv-os-darkmode` is a focused Swift tvOS sample that displays the current light,
@@ -28,7 +33,7 @@ Additional scan context:
 - Source directories: tvos-darkmode
 - Dependency and build manifests: none detected
 - Entry points or build surfaces: tvos-darkmode.xcodeproj
-- Test-looking files: no obvious test files detected
+- Test source: `tvos-darkmodeTests/AppearancePresentationTests.swift`
 
 ## Getting Started
 
@@ -50,10 +55,17 @@ The project uses Swift 5 and has no third-party package dependencies.
 ## Running or Using the Project
 
 - Open `tvos-darkmode.xcodeproj` in Xcode, choose the app or sample scheme, and run it on the matching simulator/device.
-- Run `make check` for static repository checks. The `build` step runs `xcodebuild` only on hosts where it is installed.
-- GitHub Actions runs the portable contract gate on Ubuntu 24.04 and compiles
-  the app with Xcode 16.4 on macOS 15. Both jobs have read-only repository
-  permissions, bounded timeouts, and immutable action revisions.
+- Run `make check` for static repository checks, executable XCTest when Xcode
+  is available, and unsigned simulator compilation.
+- GitHub Actions runs the portable contract gate on Ubuntu 24.04 and executes
+  XCTest with Xcode 16.4 on macOS 15. Both jobs have read-only repository
+  permissions, disabled checkout credential persistence, bounded timeouts, and
+  immutable action revisions.
+- CodeQL analyzes actions and Python without a build, and analyzes Swift from
+  an explicit unsigned single-architecture `tvos-darkmode` app-target build
+  instead of relying on Xcode target autodetection or the test-bearing scheme.
+  The instrumented Swift job has a bounded 25-minute window so analysis can
+  finish after the hosted target build.
 
 ## Testing and Verification
 
@@ -63,6 +75,21 @@ The project uses Swift 5 and has no third-party package dependencies.
   contract checks. It also enforces Swift 5, the tvOS 12 deployment floor,
   modern UIKit launch APIs, and hosted Xcode compilation.
 - Static checks also require completed canonical plans under `docs/plans`.
+- `make test` executes resolver, announcement, initial controller hierarchy,
+  and bidirectional trait-transition rendering tests on the Apple TV 4K (3rd
+  generation) simulator available to the selected Xcode. Hosted CI remains
+  deterministic because Xcode 16.4 supplies the tvOS 18.5 runtime. Derived
+  data stays under the repository's ignored `.build` directory.
+- Appearance changes use focused trait registration on tvOS 17 and later while
+  preserving the `traitCollectionDidChange` fallback for the tvOS 12 floor.
+- A small transition state machine renders every changed appearance but only
+  announces it while the controller is visible and the app is active. Changes
+  made while inactive or hidden are announced once when presentation resumes.
+- The tvOS 13+ scene lifecycle is declared while the app delegate and main
+  storyboard remain available to the tvOS 12 fallback.
+- Appearance updates use explicit maximum-contrast light/dark color pairs and
+  no animations, so Increase Contrast and Reduce Motion do not need alternate
+  transition behavior.
 - `make build` compiles the Debug app for the tvOS simulator when Xcode is
   available and reports an explicit skip on non-macOS hosts.
 
@@ -73,6 +100,10 @@ The project uses Swift 5 and has no third-party package dependencies.
 - Switch the simulator or device to Dark appearance, then confirm the centered
   label reads `Dark Mode` with a black background. With VoiceOver enabled,
   confirm the updated appearance state is announced after the switch.
+- Confirm initial presentation and repeated callbacks for the same appearance
+  do not repeat the VoiceOver announcement.
+- Send the app inactive or hide the controller, switch appearance, then return.
+  Confirm the visible state is current and VoiceOver announces it exactly once.
 - If the trait collection reports an unspecified style, confirm the fallback
   label reads `Automatic Mode` on a dark gray background.
 
@@ -113,12 +144,28 @@ When the required SDK or runtime is unavailable, use static checks and source re
   display-only appearance label guard.
 - See `docs/plans/2026-06-10-appearance-announcement.md` for trait-change
   VoiceOver announcement coverage.
+- See `docs/plans/2026-06-13-initial-appearance-announcement.md` for initial and
+  unchanged callback suppression.
 - See `docs/plans/2026-06-09-app-delegate-launch-options.md` for the historical
   Swift 3 app delegate launch-options correction.
 - See `docs/plans/2026-06-10-ci-baseline.md` for the GitHub Actions static
   contract gate.
 - See `docs/plans/2026-06-10-modern-xcode-build.md` for the Swift 5 and hosted
   Xcode build baseline.
+- See `docs/plans/2026-06-12-executable-appearance-tests.md` for the executable
+  XCTest baseline.
+- See `docs/plans/2026-06-13-controller-rendering-tests.md` for controller-level
+  dark/light hierarchy assertions and their non-visual boundary.
+- See `docs/plans/2026-06-13-controller-trait-transition-rendering.md` for
+  loaded-controller dark/light transition coverage.
+- See `docs/plans/2026-06-14-make-root-override-protection.md` for repository-
+  anchored Make verification under hostile root assignments.
+- See `docs/plans/2026-06-16-modern-trait-observation.md` for focused modern
+  appearance observation with the legacy deployment-floor fallback.
+- See `docs/plans/2026-06-19-tvos-lifecycle-deep-review.md` for scene lifecycle,
+  foreground/background announcement ownership, and portable simulator checks.
+- See `docs/plans/2026-06-12-codeql-manual-swift-build.md` for the explicit
+  Swift CodeQL build baseline.
 
 ## Contributing
 

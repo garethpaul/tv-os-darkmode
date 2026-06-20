@@ -1,5 +1,45 @@
 # Changes
 
+## 2026-06-19
+
+- Added a deterministic appearance transition state that suppresses duplicate,
+  hidden, and inactive VoiceOver announcements while preserving immediate
+  visual rendering and one announcement when presentation resumes.
+- Adopted the tvOS 13 scene lifecycle without removing the tvOS 12 app-delegate
+  and storyboard fallback required by the deployment floor.
+- Made local XCTest select the named simulator available to the chosen Xcode
+  and isolated DerivedData under the ignored repository `.build` directory.
+- Added main-actor UI ownership and five state tests covering initial,
+  repeated, hidden, inactive, and round-trip appearance transitions.
+
+## 2026-06-16
+
+- Added focused tvOS 17 trait registration while preserving the tvOS 12 through
+  16 `traitCollectionDidChange` fallback through one transition handler.
+
+## 2026-06-13
+
+- Added hosted controller-level coverage for dark-to-light and light-to-dark
+  trait transitions, including visible and accessible appearance state.
+- Added controller-level tvOS XCTest for dark and light rendered hierarchy,
+  colors, text, and accessibility identifiers without exposing private state.
+- Prevented initial or unchanged trait callbacks from repeating the appearance
+  update and VoiceOver announcement, with executable transition-decision tests.
+
+## 2026-06-12
+
+- Added a tvOS XCTest target and shared scheme covering light, dark, and
+  fallback appearance presentation mapping.
+- Changed the hosted macOS gate from compile-only verification to executable
+  XCTest on the pinned tvOS 18.5 simulator.
+- Extended portable contracts across the source, test target, scheme,
+  Makefile, workflow, tests, and completed plan.
+- Replaced ambiguous default-setup Swift CodeQL autobuild with a pinned
+  advanced workflow that manually builds the unsigned tvOS app target while
+  preserving actions and Python analysis.
+- Calibrated the instrumented Swift CodeQL job to a 25-minute bound after the
+  hosted app-target build succeeded in 14m22s but left no analysis headroom.
+
 ## 2026-06-10
 
 - Announced trait-driven appearance changes through VoiceOver after updating
@@ -8,7 +48,8 @@
 - Replaced legacy application entry-point, launch-options, and accessibility
   APIs with current Swift/UIKit syntax and removed empty lifecycle callbacks.
 - Added a fixed macOS 15/Xcode 16.4 hosted build alongside the portable static
-  contract job, with fixed runners and scoped concurrency.
+  contract job, with fixed runners, scoped concurrency, and disabled checkout
+  credential persistence.
 - Made Make targets independent of the caller's working directory and extended
   mutation-resistant contracts for the toolchain and hosted build.
 - Added a least-privilege GitHub Actions workflow that runs the static
