@@ -77,9 +77,10 @@ The project uses Swift 5 and has no third-party package dependencies.
 - Static checks also require completed canonical plans under `docs/plans`.
 - `make test` executes resolver, announcement, initial controller hierarchy,
   and bidirectional trait-transition rendering tests on the Apple TV 4K (3rd
-  generation) simulator available to the selected Xcode. Hosted CI remains
-  deterministic because Xcode 16.4 supplies the tvOS 18.5 runtime. Derived
-  data stays under the repository's ignored `.build` directory.
+  generation) simulator available to the selected Xcode. It reuses the newest
+  installed matching device or creates one from the newest installed tvOS
+  runtime when a hosted runner has no pre-created simulator. Derived data stays
+  under the repository's ignored `.build` directory.
 - Appearance changes use focused trait registration on tvOS 17 and later while
   preserving the `traitCollectionDidChange` fallback for the tvOS 12 floor.
 - A small transition state machine renders every changed appearance but only

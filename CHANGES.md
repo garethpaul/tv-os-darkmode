@@ -9,6 +9,8 @@
   and storyboard fallback required by the deployment floor.
 - Made local XCTest select the named simulator available to the chosen Xcode
   and isolated DerivedData under the ignored repository `.build` directory.
+- Made hosted XCTest create the matching Apple TV simulator when a runner has
+  an installed tvOS runtime but no pre-created device.
 - Added main-actor UI ownership and five state tests covering initial,
   repeated, hidden, inactive, and round-trip appearance transitions.
 

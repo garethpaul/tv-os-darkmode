@@ -569,6 +569,8 @@ def check_ci_baseline_docs():
         "CodeQL workflow must match the exact pinned script and manual Swift build contract",
     )
     makefile = read_text("Makefile")
+    selector = read_text("scripts/select_tvos_destination.py")
+    selector_tests = read_text("tests/test_select_tvos_destination.py")
     root_declaration = "override ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))"
     root_assignments = re.findall(
         r"^(?:override\s+)?ROOT\s*[:+?]?=", makefile, re.MULTILINE
@@ -580,7 +582,7 @@ def check_ci_baseline_docs():
     require(
         makefile.count(
             f"{root_declaration}\nPYTHON ?= python3\n"
-            "TVOS_DESTINATION ?= platform=tvOS Simulator,name=Apple TV 4K (3rd generation)\n"
+            "TVOS_DESTINATION ?=\n"
             "DERIVED_DATA_PATH ?= $(ROOT)/.build/DerivedData"
         )
         == 1,
@@ -592,16 +594,32 @@ def check_ci_baseline_docs():
         "verify: lint test build",
         "check: verify",
         '$(PYTHON) "$(ROOT)/scripts/check_tvos_contracts.py"',
-        "TVOS_DESTINATION ?= platform=tvOS Simulator,name=Apple TV 4K (3rd generation)",
+        "TVOS_DESTINATION ?=",
         "DERIVED_DATA_PATH ?= $(ROOT)/.build/DerivedData",
+        "scripts/select_tvos_destination.py",
+        "$(PYTHON) -m unittest discover",
         'cd "$(ROOT)" && xcodebuild',
         '-destination "generic/platform=tvOS Simulator"',
-        '-destination "$(TVOS_DESTINATION)"',
+        '-destination "$$destination"',
         '-derivedDataPath "$(DERIVED_DATA_PATH)"',
         "CODE_SIGNING_ALLOWED=NO",
         "CODE_SIGNING_ALLOWED=NO test",
     ):
         require(contract in makefile, f"Makefile must support invocation outside the repository: {contract}")
+    for fragment in (
+        'DEVICE_NAME = "Apple TV 4K (3rd generation)"',
+        '["xcrun", "simctl", "list", "--json"]',
+        '["xcrun", "simctl", "create", name, device_type, runtime]',
+        'return f"platform=tvOS Simulator,id={device[\'udid\']}"',
+        'raise RuntimeError("no available tvOS simulator runtime is installed")',
+    ):
+        require(fragment in selector, f"simulator selector is missing: {fragment}")
+    for test_name in (
+        "test_uses_matching_device_from_newest_available_runtime",
+        "test_creates_matching_device_when_runtime_has_no_device",
+        "test_rejects_missing_available_tvos_runtime",
+    ):
+        require(test_name in selector_tests, f"simulator selector test is missing: {test_name}")
     require(
         "docs/plans/2026-06-14-make-root-override-protection.md" in read_text("README.md"),
         "README.md must index Make root override protection evidence",
