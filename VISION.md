@@ -25,6 +25,9 @@ Priority:
 - Keep appearance labels described for assistive technologies
 - Announce live appearance changes to assistive technologies
 - Avoid duplicate announcements during initial or unchanged appearance callbacks
+- Announce hidden or inactive appearance changes once when presentation resumes
+- Keep UI state ownership on the main actor
+- Use the scene lifecycle on tvOS 13+ while preserving the tvOS 12 fallback
 - Keep the root appearance view identifiable for simulator/UI verification
 - Keep appearance text scaled within the tvOS viewport
 - Keep appearance text bounded inside the tvOS viewport
@@ -36,6 +39,7 @@ Priority:
 - Keep loaded-controller dark-to-light and light-to-dark rendering covered by
   hosted XCTest
 - Keep focused tvOS 17 trait registration with a tvOS 12 through 16 fallback
+- Keep Reduce Motion behavior animation-free and retain maximum-contrast color pairs
 - Keep completed maintenance plans under `docs/plans`
 - Keep GitHub Actions running both portable contracts and hosted XCTest
 

@@ -77,10 +77,19 @@ The project uses Swift 5 and has no third-party package dependencies.
 - Static checks also require completed canonical plans under `docs/plans`.
 - `make test` executes resolver, announcement, initial controller hierarchy,
   and bidirectional trait-transition rendering tests on the Apple TV 4K (3rd
-  generation) tvOS 18.5 simulator when Xcode is available and reports an
-  explicit skip on non-macOS hosts.
+  generation) simulator available to the selected Xcode. Hosted CI remains
+  deterministic because Xcode 16.4 supplies the tvOS 18.5 runtime. Derived
+  data stays under the repository's ignored `.build` directory.
 - Appearance changes use focused trait registration on tvOS 17 and later while
   preserving the `traitCollectionDidChange` fallback for the tvOS 12 floor.
+- A small transition state machine renders every changed appearance but only
+  announces it while the controller is visible and the app is active. Changes
+  made while inactive or hidden are announced once when presentation resumes.
+- The tvOS 13+ scene lifecycle is declared while the app delegate and main
+  storyboard remain available to the tvOS 12 fallback.
+- Appearance updates use explicit maximum-contrast light/dark color pairs and
+  no animations, so Increase Contrast and Reduce Motion do not need alternate
+  transition behavior.
 - `make build` compiles the Debug app for the tvOS simulator when Xcode is
   available and reports an explicit skip on non-macOS hosts.
 
@@ -93,6 +102,8 @@ The project uses Swift 5 and has no third-party package dependencies.
   confirm the updated appearance state is announced after the switch.
 - Confirm initial presentation and repeated callbacks for the same appearance
   do not repeat the VoiceOver announcement.
+- Send the app inactive or hide the controller, switch appearance, then return.
+  Confirm the visible state is current and VoiceOver announces it exactly once.
 - If the trait collection reports an unspecified style, confirm the fallback
   label reads `Automatic Mode` on a dark gray background.
 
@@ -151,6 +162,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   anchored Make verification under hostile root assignments.
 - See `docs/plans/2026-06-16-modern-trait-observation.md` for focused modern
   appearance observation with the legacy deployment-floor fallback.
+- See `docs/plans/2026-06-19-tvos-lifecycle-deep-review.md` for scene lifecycle,
+  foreground/background announcement ownership, and portable simulator checks.
 - See `docs/plans/2026-06-12-codeql-manual-swift-build.md` for the explicit
   Swift CodeQL build baseline.
 

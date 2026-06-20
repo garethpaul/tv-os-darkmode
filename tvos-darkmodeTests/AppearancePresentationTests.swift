@@ -2,6 +2,7 @@ import UIKit
 import XCTest
 @testable import tvos_darkmode
 
+@MainActor
 final class AppearancePresentationTests: XCTestCase {
     func testDarkAppearanceUsesWhiteTextOnBlack() {
         let presentation = AppearancePresentation.resolve(for: .dark)
@@ -27,28 +28,72 @@ final class AppearancePresentationTests: XCTestCase {
         XCTAssertEqual(presentation.textColor, .white)
     }
 
-    func testMissingPreviousStyleDoesNotAnnounce() {
-        XCTAssertFalse(
-            AppearancePresentation.shouldAnnounceChange(from: nil, to: .dark)
+    func testInitialAppearanceRendersWithoutAnnouncement() {
+        var state = AppearanceTransitionState()
+
+        XCTAssertEqual(
+            state.load(style: .dark),
+            AppearanceTransitionUpdate(style: .dark, shouldRender: true, shouldAnnounce: false)
         )
     }
 
-    func testUnchangedStyleDoesNotAnnounce() {
-        XCTAssertFalse(
-            AppearancePresentation.shouldAnnounceChange(from: .dark, to: .dark)
+    func testVisibleActiveTransitionRendersAndAnnouncesOnce() {
+        var state = AppearanceTransitionState()
+        _ = state.load(style: .dark)
+        XCTAssertNil(state.setVisible(true))
+        XCTAssertNil(state.setActive(true))
+
+        XCTAssertEqual(
+            state.transition(to: .light),
+            AppearanceTransitionUpdate(style: .light, shouldRender: true, shouldAnnounce: true)
         )
+        XCTAssertNil(state.transition(to: .light))
     }
 
-    func testLightToDarkStyleChangeAnnounces() {
-        XCTAssertTrue(
-            AppearancePresentation.shouldAnnounceChange(from: .light, to: .dark)
+    func testInactiveTransitionDefersAnnouncementUntilReactivation() {
+        var state = AppearanceTransitionState()
+        _ = state.load(style: .dark)
+        _ = state.setVisible(true)
+        _ = state.setActive(true)
+        _ = state.setActive(false)
+
+        XCTAssertEqual(
+            state.transition(to: .light),
+            AppearanceTransitionUpdate(style: .light, shouldRender: true, shouldAnnounce: false)
         )
+        XCTAssertEqual(
+            state.setActive(true),
+            AppearanceTransitionUpdate(style: .light, shouldRender: false, shouldAnnounce: true)
+        )
+        XCTAssertNil(state.setActive(true))
     }
 
-    func testDarkToLightStyleChangeAnnounces() {
-        XCTAssertTrue(
-            AppearancePresentation.shouldAnnounceChange(from: .dark, to: .light)
+    func testHiddenTransitionDefersAnnouncementUntilVisible() {
+        var state = AppearanceTransitionState()
+        _ = state.load(style: .dark)
+        _ = state.setActive(true)
+
+        XCTAssertEqual(
+            state.transition(to: .light),
+            AppearanceTransitionUpdate(style: .light, shouldRender: true, shouldAnnounce: false)
         )
+        XCTAssertEqual(
+            state.setVisible(true),
+            AppearanceTransitionUpdate(style: .light, shouldRender: false, shouldAnnounce: true)
+        )
+        XCTAssertNil(state.setVisible(true))
+    }
+
+    func testInactiveRoundTripBackToPresentedStyleDoesNotAnnounce() {
+        var state = AppearanceTransitionState()
+        _ = state.load(style: .dark)
+        _ = state.setVisible(true)
+        _ = state.setActive(true)
+        _ = state.setActive(false)
+        _ = state.transition(to: .light)
+        _ = state.transition(to: .dark)
+
+        XCTAssertNil(state.setActive(true))
     }
 
     func testDarkControllerRendersAppearanceHierarchy() {

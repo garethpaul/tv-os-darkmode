@@ -1,5 +1,17 @@
 # Changes
 
+## 2026-06-19
+
+- Added a deterministic appearance transition state that suppresses duplicate,
+  hidden, and inactive VoiceOver announcements while preserving immediate
+  visual rendering and one announcement when presentation resumes.
+- Adopted the tvOS 13 scene lifecycle without removing the tvOS 12 app-delegate
+  and storyboard fallback required by the deployment floor.
+- Made local XCTest select the named simulator available to the chosen Xcode
+  and isolated DerivedData under the ignored repository `.build` directory.
+- Added main-actor UI ownership and five state tests covering initial,
+  repeated, hidden, inactive, and round-trip appearance transitions.
+
 ## 2026-06-16
 
 - Added focused tvOS 17 trait registration while preserving the tvOS 12 through

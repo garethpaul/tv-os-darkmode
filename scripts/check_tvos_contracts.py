@@ -22,6 +22,7 @@ INITIAL_ANNOUNCEMENT_PLAN = DOCS_PLANS / "2026-06-13-initial-appearance-announce
 TRAIT_TRANSITION_PLAN = DOCS_PLANS / "2026-06-13-controller-trait-transition-rendering.md"
 ROOT_OVERRIDE_PLAN = DOCS_PLANS / "2026-06-14-make-root-override-protection.md"
 MODERN_TRAIT_OBSERVATION_PLAN = DOCS_PLANS / "2026-06-16-modern-trait-observation.md"
+DEEP_REVIEW_PLAN = DOCS_PLANS / "2026-06-19-tvos-lifecycle-deep-review.md"
 CI_WORKFLOW = ROOT / ".github" / "workflows" / "check.yml"
 CODEQL_WORKFLOW = ROOT / ".github" / "workflows" / "codeql.yml"
 SHARED_SCHEME = ROOT / "tvos-darkmode.xcodeproj" / "xcshareddata" / "xcschemes" / "tvos-darkmode.xcscheme"
@@ -187,6 +188,10 @@ def check_docs_plans():
         MODERN_TRAIT_OBSERVATION_PLAN.exists(),
         "docs/plans/2026-06-16-modern-trait-observation.md is missing",
     )
+    require(
+        DEEP_REVIEW_PLAN.exists(),
+        "docs/plans/2026-06-19-tvos-lifecycle-deep-review.md is missing",
+    )
     plans = sorted(DOCS_PLANS.glob("*.md")) if DOCS_PLANS.exists() else []
     require(plans, "docs/plans must contain at least one completed plan")
     for plan_path in plans:
@@ -202,6 +207,24 @@ def check_project_files_parse():
         info = plistlib.load(plist_file)
     require(info["UIMainStoryboardFile"] == "Main", "Info.plist must launch Main.storyboard")
     require(info["UIUserInterfaceStyle"] == "Automatic", "app must opt into automatic appearance")
+    scene_manifest = info["UIApplicationSceneManifest"]
+    require(
+        scene_manifest["UIApplicationSupportsMultipleScenes"] is False,
+        "the sample must remain single-scene",
+    )
+    scene_configurations = scene_manifest["UISceneConfigurations"][
+        "UIWindowSceneSessionRoleApplication"
+    ]
+    require(len(scene_configurations) == 1, "the app must define one window-scene configuration")
+    require(
+        scene_configurations[0]["UISceneDelegateClassName"]
+        == "$(PRODUCT_MODULE_NAME).SceneDelegate",
+        "the scene manifest must use SceneDelegate",
+    )
+    require(
+        scene_configurations[0]["UISceneStoryboardFile"] == "Main",
+        "the scene lifecycle must keep the Main storyboard",
+    )
 
     ET.parse(ROOT / "tvos-darkmode/Base.lproj/Main.storyboard")
     ET.parse(SHARED_SCHEME)
@@ -224,6 +247,7 @@ def check_xcode_project_contracts():
     )
     require("LastSwiftMigration = 1640;" in project, "project must record the Xcode 16.4 migration")
     require("ViewController.swift in Sources" in project, "ViewController must remain compiled")
+    require("SceneDelegate.swift in Sources" in project, "SceneDelegate must remain compiled")
     for fragment in (
         'productType = "com.apple.product-type.bundle.unit-test";',
         "AppearancePresentationTests.swift in Sources",
@@ -261,11 +285,19 @@ def check_app_delegate_contracts():
         "UIApplicationLaunchOptionsKey" not in app_delegate and "@UIApplicationMain" not in app_delegate,
         "AppDelegate must not use removed Swift 3 application APIs",
     )
+    scene_delegate = read_text("tvos-darkmode/SceneDelegate.swift")
+    require(
+        "@available(tvOS 13.0, *)" in scene_delegate
+        and "final class SceneDelegate: UIResponder, UIWindowSceneDelegate" in scene_delegate
+        and "var window: UIWindow?" in scene_delegate,
+        "SceneDelegate must provide the scene-based lifecycle while preserving tvOS 12 fallback",
+    )
 
 
 def check_visible_appearance_state():
     view_controller = read_text("tvos-darkmode/ViewController.swift")
 
+    require("@MainActor\nfinal class ViewController" in view_controller, "UI ownership must be main-actor isolated")
     require(
         "private let appearanceLabel = UILabel()" in view_controller,
         "ViewController must own a visible appearance label",
@@ -324,12 +356,8 @@ def check_visible_appearance_state():
         "appearance label must describe its appearance-state purpose to assistive technologies",
     )
     require(
-        view_controller.count("updateAppearance(for: traitCollection)") >= 2,
-        "appearance state must be applied on load and after trait changes",
-    )
-    require(
         "UIAccessibility.post(notification: .announcement," in view_controller
-        and "argument: appearanceLabel.accessibilityLabel)" in view_controller,
+        and "argument: presentation.text)" in view_controller,
         "appearance changes must announce the updated state to assistive technologies",
     )
     modern_observation = re.search(
@@ -341,8 +369,7 @@ def check_visible_appearance_state():
     require(
         "if #available(tvOS 17.0, *)" in modern_observation.group(0)
         and "registerForTraitChanges([UITraitUserInterfaceStyle.self])" in modern_observation.group(0)
-        and "controller.handleAppearanceTransition(from: previousTraitCollection)"
-        in modern_observation.group(0),
+        and "controller.handleAppearanceTransition()" in modern_observation.group(0),
         "tvOS 17 must register only user-interface-style changes through the shared handler",
     )
     require(
@@ -358,32 +385,30 @@ def check_visible_appearance_state():
     require(
         "if #available(tvOS 17.0, *)" in trait_change.group(0)
         and "return" in trait_change.group(0)
-        and "handleAppearanceTransition(from: previousTraitCollection)"
-        in trait_change.group(0),
+        and "handleAppearanceTransition()" in trait_change.group(0),
         "legacy trait changes must run only below tvOS 17 through the shared handler",
     )
-    transition_handler = re.search(
-        r"private func handleAppearanceTransition.*?\n    \}",
-        view_controller,
-        re.DOTALL,
-    )
-    require(transition_handler is not None, "appearance transitions must use a shared handler")
     require(
-        transition_handler.group(0).index("updateAppearance(for: traitCollection)")
-        < transition_handler.group(0).index(
-            "UIAccessibility.post(notification: .announcement,"
-        ),
-        "appearance state must update before its accessibility announcement",
+        "struct AppearanceTransitionState" in view_controller
+        and "lastCommunicatedStyle" in view_controller
+        and "isVisible && isActive" in view_controller
+        and "appearanceState.transition(to: traitCollection.userInterfaceStyle)" in view_controller,
+        "appearance transitions must deduplicate and gate announcements by visibility and activity",
     )
     require(
-        "static func shouldAnnounceChange(" in view_controller
-        and "guard let previousStyle = previousStyle else" in view_controller
-        and "return previousStyle != currentStyle" in view_controller,
-        "appearance announcements must require a known, changed previous style",
+        "UIApplication.didBecomeActiveNotification" in view_controller
+        and "UIApplication.willResignActiveNotification" in view_controller
+        and "appearanceState.setVisible(true)" in view_controller
+        and "appearanceState.setVisible(false)" in view_controller
+        and "appearanceState.setActive(true)" in view_controller
+        and "appearanceState.setActive(false)" in view_controller,
+        "controller lifecycle must gate announcements across visibility and app activity",
     )
     require(
-        "AppearancePresentation.shouldAnnounceChange(" in transition_handler.group(0),
-        "trait changes must use the tested announcement predicate",
+        "if update.shouldRender" in view_controller
+        and "if update.shouldAnnounce" in view_controller
+        and view_controller.index("if update.shouldRender") < view_controller.index("if update.shouldAnnounce"),
+        "appearance rendering must occur before any announcement",
     )
     require(
         "traitCollection.responds(to:" not in view_controller,
@@ -442,10 +467,11 @@ def check_executable_tests():
         "testDarkAppearanceUsesWhiteTextOnBlack",
         "testLightAppearanceUsesBlackTextOnWhite",
         "testUnspecifiedAppearanceUsesAutomaticFallback",
-        "testMissingPreviousStyleDoesNotAnnounce",
-        "testUnchangedStyleDoesNotAnnounce",
-        "testLightToDarkStyleChangeAnnounces",
-        "testDarkToLightStyleChangeAnnounces",
+        "testInitialAppearanceRendersWithoutAnnouncement",
+        "testVisibleActiveTransitionRendersAndAnnouncesOnce",
+        "testInactiveTransitionDefersAnnouncementUntilReactivation",
+        "testHiddenTransitionDefersAnnouncementUntilVisible",
+        "testInactiveRoundTripBackToPresentedStyleDoesNotAnnounce",
         "testDarkControllerRendersAppearanceHierarchy",
         "testLightControllerRendersAppearanceHierarchy",
         "testDarkControllerRendersLightAppearanceAfterTraitChange",
@@ -473,6 +499,10 @@ def check_executable_tests():
         "XCTAssertEqual(label?.accessibilityLabel, text)",
         "XCTAssertEqual(label?.textColor, textColor)",
         "XCTAssertEqual(controller.view.backgroundColor, backgroundColor)",
+        "AppearanceTransitionState()",
+        "shouldRender: true, shouldAnnounce: false",
+        "shouldRender: true, shouldAnnounce: true",
+        "shouldRender: false, shouldAnnounce: true",
     ):
         require(fragment in tests, f"XCTest coverage is missing: {fragment}")
     for test_name, initial_style, current_style in (
@@ -550,7 +580,8 @@ def check_ci_baseline_docs():
     require(
         makefile.count(
             f"{root_declaration}\nPYTHON ?= python3\n"
-            "TVOS_DESTINATION ?= platform=tvOS Simulator,name=Apple TV 4K (3rd generation),OS=18.5"
+            "TVOS_DESTINATION ?= platform=tvOS Simulator,name=Apple TV 4K (3rd generation)\n"
+            "DERIVED_DATA_PATH ?= $(ROOT)/.build/DerivedData"
         )
         == 1,
         "Makefile must keep the protected root before configurable tools",
@@ -561,10 +592,12 @@ def check_ci_baseline_docs():
         "verify: lint test build",
         "check: verify",
         '$(PYTHON) "$(ROOT)/scripts/check_tvos_contracts.py"',
-        "TVOS_DESTINATION ?= platform=tvOS Simulator,name=Apple TV 4K (3rd generation),OS=18.5",
+        "TVOS_DESTINATION ?= platform=tvOS Simulator,name=Apple TV 4K (3rd generation)",
+        "DERIVED_DATA_PATH ?= $(ROOT)/.build/DerivedData",
         'cd "$(ROOT)" && xcodebuild',
         '-destination "generic/platform=tvOS Simulator"',
         '-destination "$(TVOS_DESTINATION)"',
+        '-derivedDataPath "$(DERIVED_DATA_PATH)"',
         "CODE_SIGNING_ALLOWED=NO",
         "CODE_SIGNING_ALLOWED=NO test",
     ):
@@ -591,7 +624,13 @@ def main():
     try:
         for check in checks:
             check()
-    except (AssertionError, ET.ParseError, json.JSONDecodeError, plistlib.InvalidFileException) as exc:
+    except (
+        AssertionError,
+        ET.ParseError,
+        KeyError,
+        json.JSONDecodeError,
+        plistlib.InvalidFileException,
+    ) as exc:
         return fail(str(exc))
 
     print(f"tvOS static contracts passed ({len(checks)} checks).")
