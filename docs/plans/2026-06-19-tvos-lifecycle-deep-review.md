@@ -50,3 +50,13 @@ the named simulator runtime supplied by the selected Xcode.
   commits. GitHub reported zero open code-scanning, secret-scanning, and
   Dependabot alerts.
 - Hosted Check and CodeQL: required before merge.
+
+## Post-Merge Gate Correction
+
+The PR-head Check and CodeQL runs passed, but exact-master Check run
+`27855771060` landed on a macOS runner with no pre-created tvOS simulator and
+failed destination resolution before compilation. The follow-up selector reads
+the installed CoreSimulator inventory, reuses the newest available matching
+Apple TV device, or creates one from the newest installed tvOS runtime. Three
+unit tests cover newest-runtime selection, device creation, and the no-runtime
+failure. Exact-master hosted verification is required again after the follow-up.
