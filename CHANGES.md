@@ -3,9 +3,11 @@
 - Added a fixed `scripts/run-make.sh` entrypoint for hosted `check` and `test`
   runs. It clears inherited Make control variables, rejects options,
   assignments, extra targets, and alternate Makefiles, and invokes the physical
-  repository Makefile through fixed system tools. Regression tests reproduce
-  raw `--eval`, dry-run, ignore-errors, `GNUMAKEFLAGS`, `MAKEFILES`, and earlier
-  `-f` authority before proving the wrapper excludes those channels.
+  repository Makefile through fixed system tools. It resolves bounded relative
+  and absolute script symlink chains without losing spaces, quotes, or newline
+  bytes, and rejects broken or overlong chains. Regression tests reproduce raw
+  `--eval`, dry-run, ignore-errors, `GNUMAKEFLAGS`, `MAKEFILES`, and earlier `-f`
+  authority before proving the wrapper excludes those channels.
 - Hardened repository Make rules against Make-syntax interpreter injection,
   caller shell replacement, visible non-executing flags, populated `MAKEFILES`,
   `MAKEFILE_LIST` root substitution, and root redirection while preserving

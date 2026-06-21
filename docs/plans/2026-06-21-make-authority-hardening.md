@@ -29,7 +29,8 @@ flags could change what `make check` actually executed.
 - Added adversarial tests for root, shell, Python, flags, Makefile identity, and
   startup makefiles.
 - Added `scripts/run-make.sh` with fixed root/tool resolution, an exact
-  `check|test` allowlist, sanitized Make environment, and a fixed Makefile path.
+  `check|test` allowlist, sanitized Make environment, a bounded physical-script
+  symlink resolver, and a fixed Makefile path.
 - Changed both hosted Make invocations to use the wrapper.
 - Wired the authority suite into `make check` without changing app behavior.
 
@@ -39,6 +40,8 @@ flags could change what `make check` actually executed.
   skips truthfully.
 - From an external working directory, `/path/to/scripts/run-make.sh check` runs
   the same gates against the physical repository root.
+- External relative and absolute symlink invocation resolves back to the
+  physical script; broken and chains beyond 40 links fail closed.
 - Hosted Xcode remains authoritative for tvOS build and XCTest behavior.
 
 ## Scope Boundaries

@@ -75,10 +75,12 @@ The project uses Swift 5 and has no third-party package dependencies.
   accessibility-hint, display-only, root-view identifier, and contrast
   contract checks. It also enforces Swift 5, the tvOS 12 deployment floor,
   modern UIKit launch APIs, and hosted Xcode compilation.
-- The trusted wrapper accepts exactly `check` or `test`, resolves the physical
-  repository Makefile with fixed system tools, clears `MAKEFILES`, `MAKEFLAGS`,
-  `MFLAGS`, `MAKEOVERRIDES`, and `GNUMAKEFLAGS`, and invokes fixed
-  `/usr/bin/make` with no caller-supplied options, assignments, or extra files.
+- The trusted wrapper accepts exactly `check` or `test`, resolves its physical
+  script through a bounded relative or absolute symlink chain, rejects broken
+  or overlong resolutions, then selects the adjacent repository Makefile with
+  fixed system tools. It clears `MAKEFILES`, `MAKEFLAGS`, `MFLAGS`,
+  `MAKEOVERRIDES`, and `GNUMAKEFLAGS`, and invokes fixed `/usr/bin/make` with no
+  caller-supplied options, assignments, or extra files.
   Direct `make` commands remain caller authority: startup files, earlier `-f`
   files, and options such as `--eval`, dry-run, or ignore-errors are processed
   before the repository Makefile can validate them.

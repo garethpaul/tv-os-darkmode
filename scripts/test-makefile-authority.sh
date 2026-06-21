@@ -112,11 +112,101 @@ expect_rejected() {
   fi
 }
 
+run_wrapper_with_zero() {
+  synthetic_zero=$1
+  shift
+  /bin/sh -c 'wrapper=$1; shift; . "$wrapper"' "$synthetic_zero" "$WRAPPER" "$@"
+}
+
 expect_rejected dry-run -n --eval='override MAKEFLAGS :=' check
 expect_rejected ignore-errors -i --eval='override MAKEFLAGS :=' test
 expect_rejected earlier-makefile -f "$earlier_makefile" -f "$MAKEFILE" test
 expect_rejected make-assignment MAKEFLAGS=--just-print test
 expect_rejected extra-target test check
+
+SYMLINK_ROOT=$TEMP_ROOT/symlink-checkout
+SYMLINK_MARKER=$TEMP_ROOT/symlink-root-executed
+mkdir -p "$SYMLINK_ROOT/scripts"
+cat >"$SYMLINK_ROOT/Makefile" <<EOF
+check test:
+	@/usr/bin/touch '$SYMLINK_MARKER'
+EOF
+ln -s "$WRAPPER" "$SYMLINK_ROOT/scripts/run-make.sh"
+if ! (cd "$CONTROL_DIR" && PYTHON="$fake_python" PATH="$FAKE_BIN:/usr/bin:/bin" \
+  /bin/sh "$SYMLINK_ROOT/scripts/run-make.sh" test) \
+  >"$TEMP_ROOT/symlink-root.out" 2>"$TEMP_ROOT/symlink-root.err"; then
+  echo "wrapper failed through an external symlink" >&2
+  exit 1
+fi
+if [ -e "$SYMLINK_MARKER" ]; then
+  echo "external symlink redirected trusted Make root" >&2
+  exit 1
+fi
+
+MIXED_SYMLINK_ROOT=$TEMP_ROOT/mixed-symlink-checkout
+MIXED_SYMLINK_MARKER=$TEMP_ROOT/mixed-symlink-root-executed
+MIXED_TARGET_NAME="physical target's
+middle"
+mkdir -p "$MIXED_SYMLINK_ROOT/scripts"
+cat >"$MIXED_SYMLINK_ROOT/Makefile" <<EOF
+check test:
+	@/usr/bin/touch '$MIXED_SYMLINK_MARKER'
+EOF
+ln -s "$WRAPPER" "$MIXED_SYMLINK_ROOT/scripts/$MIXED_TARGET_NAME"
+ln -s "$MIXED_TARGET_NAME" "$MIXED_SYMLINK_ROOT/scripts/run-make.sh"
+if ! (cd "$CONTROL_DIR" && PYTHON="$fake_python" PATH="$FAKE_BIN:/usr/bin:/bin" \
+  /bin/sh "$MIXED_SYMLINK_ROOT/scripts/run-make.sh" test) \
+  >"$TEMP_ROOT/mixed-symlink-root.out" 2>"$TEMP_ROOT/mixed-symlink-root.err"; then
+  echo "wrapper failed through a relative symlink containing spaces, quotes, and a newline" >&2
+  exit 1
+fi
+if [ -e "$MIXED_SYMLINK_MARKER" ]; then
+  echo "mixed-byte symlink redirected trusted Make root" >&2
+  exit 1
+fi
+
+BROKEN_SYMLINK_ROOT=$TEMP_ROOT/broken-symlink-checkout
+BROKEN_SYMLINK_MARKER=$TEMP_ROOT/broken-symlink-root-executed
+mkdir -p "$BROKEN_SYMLINK_ROOT/scripts"
+cat >"$BROKEN_SYMLINK_ROOT/Makefile" <<EOF
+check test:
+	@/usr/bin/touch '$BROKEN_SYMLINK_MARKER'
+EOF
+ln -s missing-target "$BROKEN_SYMLINK_ROOT/scripts/run-make.sh"
+if (cd "$CONTROL_DIR" && run_wrapper_with_zero "$BROKEN_SYMLINK_ROOT/scripts/run-make.sh" check) \
+  >"$TEMP_ROOT/broken-symlink.out" 2>"$TEMP_ROOT/broken-symlink.err"; then
+  echo "broken symlink invocation unexpectedly succeeded" >&2
+  exit 1
+fi
+if [ -e "$BROKEN_SYMLINK_MARKER" ]; then
+  echo "broken symlink invocation executed an external Makefile" >&2
+  exit 1
+fi
+
+OVERLONG_SYMLINK_ROOT=$TEMP_ROOT/overlong-symlink-checkout
+OVERLONG_SYMLINK_MARKER=$TEMP_ROOT/overlong-symlink-root-executed
+mkdir -p "$OVERLONG_SYMLINK_ROOT/scripts"
+cat >"$OVERLONG_SYMLINK_ROOT/Makefile" <<EOF
+check test:
+	@/usr/bin/touch '$OVERLONG_SYMLINK_MARKER'
+EOF
+ln -s "$WRAPPER" "$OVERLONG_SYMLINK_ROOT/scripts/link-41"
+link_number=40
+while [ "$link_number" -ge 1 ]; do
+  next_link=$((link_number + 1))
+  ln -s "link-$next_link" "$OVERLONG_SYMLINK_ROOT/scripts/link-$link_number"
+  link_number=$((link_number - 1))
+done
+ln -s link-1 "$OVERLONG_SYMLINK_ROOT/scripts/run-make.sh"
+if (cd "$CONTROL_DIR" && run_wrapper_with_zero "$OVERLONG_SYMLINK_ROOT/scripts/run-make.sh" check) \
+  >"$TEMP_ROOT/overlong-symlink.out" 2>"$TEMP_ROOT/overlong-symlink.err"; then
+  echo "overlong symlink invocation unexpectedly succeeded" >&2
+  exit 1
+fi
+if [ -e "$OVERLONG_SYMLINK_MARKER" ]; then
+  echo "overlong symlink invocation executed an external Makefile" >&2
+  exit 1
+fi
 
 rm -f "$startup_marker" "$gnumake_marker"
 : >"$PYTHON_LOG"
@@ -136,4 +226,4 @@ fi
 grep -F "$ROOT_DIR/scripts/check_tvos_contracts.py" "$PYTHON_LOG" >/dev/null
 
 printf '%s\n' \
-  "Make authority tests passed: raw pre-parse paths reproduced; wrapper rejected options, assignments, extra args, earlier -f files, and cleared inherited Make controls"
+  "Make authority tests passed: raw pre-parse paths reproduced; wrapper resolved its physical script, rejected broken/overlong links, options, assignments, extra args, earlier -f files, and cleared inherited Make controls"
