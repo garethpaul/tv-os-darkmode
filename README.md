@@ -74,6 +74,12 @@ The project uses Swift 5 and has no third-party package dependencies.
   accessibility-hint, display-only, root-view identifier, and contrast
   contract checks. It also enforces Swift 5, the tvOS 12 deployment floor,
   modern UIKit launch APIs, and hosted Xcode compilation.
+- When invoked with the checked-in Makefile alone, the Make entry point protects
+  repository paths and recipe shells, rejects non-executing flags, stops when
+  `MAKEFILES` is populated, rejects `MAKEFILE_LIST` replacement, and accepts
+  only literal `PYTHON` overrides.
+  GNU Make startup files execute during parsing, and caller-supplied later `-f`
+  files remain outside this repository trust boundary.
 - Static checks also require completed canonical plans under `docs/plans`.
 - `make test` executes resolver, announcement, initial controller hierarchy,
   and bidirectional trait-transition rendering tests on the Apple TV 4K (3rd
@@ -161,6 +167,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   loaded-controller dark/light transition coverage.
 - See `docs/plans/2026-06-14-make-root-override-protection.md` for repository-
   anchored Make verification under hostile root assignments.
+- See `docs/plans/2026-06-21-make-authority-hardening.md` for interpreter,
+  shell, startup-file, and execution-mode authority checks.
 - See `docs/plans/2026-06-16-modern-trait-observation.md` for focused modern
   appearance observation with the legacy deployment-floor fallback.
 - See `docs/plans/2026-06-19-tvos-lifecycle-deep-review.md` for scene lifecycle,

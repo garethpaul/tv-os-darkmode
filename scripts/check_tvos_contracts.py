@@ -21,6 +21,7 @@ CODEQL_PLAN = DOCS_PLANS / "2026-06-12-codeql-manual-swift-build.md"
 INITIAL_ANNOUNCEMENT_PLAN = DOCS_PLANS / "2026-06-13-initial-appearance-announcement.md"
 TRAIT_TRANSITION_PLAN = DOCS_PLANS / "2026-06-13-controller-trait-transition-rendering.md"
 ROOT_OVERRIDE_PLAN = DOCS_PLANS / "2026-06-14-make-root-override-protection.md"
+MAKE_AUTHORITY_PLAN = DOCS_PLANS / "2026-06-21-make-authority-hardening.md"
 MODERN_TRAIT_OBSERVATION_PLAN = DOCS_PLANS / "2026-06-16-modern-trait-observation.md"
 DEEP_REVIEW_PLAN = DOCS_PLANS / "2026-06-19-tvos-lifecycle-deep-review.md"
 CI_WORKFLOW = ROOT / ".github" / "workflows" / "check.yml"
@@ -183,6 +184,10 @@ def check_docs_plans():
     require(
         ROOT_OVERRIDE_PLAN.exists(),
         "docs/plans/2026-06-14-make-root-override-protection.md is missing",
+    )
+    require(
+        MAKE_AUTHORITY_PLAN.exists(),
+        "docs/plans/2026-06-21-make-authority-hardening.md is missing",
     )
     require(
         MODERN_TRAIT_OBSERVATION_PLAN.exists(),
@@ -571,34 +576,41 @@ def check_ci_baseline_docs():
     makefile = read_text("Makefile")
     selector = read_text("scripts/select_tvos_destination.py")
     selector_tests = read_text("tests/test_select_tvos_destination.py")
-    root_declaration = "override ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))"
+    root_declaration = "override ROOT := $(REPOSITORY_ROOT)"
     root_assignments = re.findall(
         r"^(?:override\s+)?ROOT\s*[:+?]?=", makefile, re.MULTILINE
     )
     require(
-        len(root_assignments) == 1 and makefile.count(root_declaration) == 1,
-        "Makefile must contain exactly one protected repository-root declaration",
+        len(root_assignments) == 1
+        and makefile.splitlines().count(root_declaration) == 1
+        and makefile.splitlines().count("$(PUBLIC_TARGETS): override ROOT := $(REPOSITORY_ROOT)") == 1,
+        "Makefile must contain the global and public-target protected repository-root declarations",
     )
     require(
-        makefile.count(
-            f"{root_declaration}\nPYTHON ?= python3\n"
-            "TVOS_DESTINATION ?=\n"
-            "DERIVED_DATA_PATH ?= $(ROOT)/.build/DerivedData"
-        )
-        == 1,
-        "Makefile must keep the protected root before configurable tools",
+        makefile.count("override REPOSITORY_MAKEFILE := $(lastword $(MAKEFILE_LIST))") == 1
+        and makefile.count("override REPOSITORY_ROOT := $(abspath $(dir $(REPOSITORY_MAKEFILE)))") == 1,
+        "Makefile must capture its own path before protecting the repository root",
     )
     for contract in (
-        ".PHONY: build check lint test verify",
+        ".PHONY: __repository-make-authority build check lint root-test test verify",
+        "override PYTHON := $(value PYTHON)",
+        "PYTHON must be a literal executable path, not Make syntax",
+        "override SHELL := /bin/sh",
+        "MAKEFLAGS must not be overridden for repository verification",
+        "MAKEFILES must be empty; repository verification requires this Makefile to be loaded alone",
+        "MAKEFILE_LIST must not be overridden",
+        "$(PUBLIC_TARGETS): override ROOT := $(REPOSITORY_ROOT)",
+        "root-test:",
+        '"$$ROOT/scripts/test-makefile-authority.sh"',
         "test: lint",
-        "verify: lint test build",
+        "verify: root-test lint test build",
         "check: verify",
-        '$(PYTHON) "$(ROOT)/scripts/check_tvos_contracts.py"',
+        '"$$PYTHON" "$$ROOT/scripts/check_tvos_contracts.py"',
         "TVOS_DESTINATION ?=",
         "DERIVED_DATA_PATH ?= $(ROOT)/.build/DerivedData",
         "scripts/select_tvos_destination.py",
-        "$(PYTHON) -m unittest discover",
-        'cd "$(ROOT)" && xcodebuild',
+        '"$$PYTHON" -m unittest discover',
+        'cd "$$ROOT" && xcodebuild',
         '-destination "generic/platform=tvOS Simulator"',
         '-destination "$$destination"',
         '-derivedDataPath "$(DERIVED_DATA_PATH)"',

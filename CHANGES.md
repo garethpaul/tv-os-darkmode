@@ -1,5 +1,11 @@
 # Changes
 
+- Hardened `make check` against Make-syntax interpreter injection, caller shell
+  replacement, non-executing flags, populated `MAKEFILES`, and root redirection;
+  rejected `MAKEFILE_LIST` root substitution, documented the remaining
+  startup/later-`-f` parse boundary, and preserved literal Python and tvOS
+  destination overrides.
+
 ## 2026-06-19
 
 - Added a deterministic appearance transition state that suppresses duplicate,
