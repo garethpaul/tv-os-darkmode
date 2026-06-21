@@ -26,6 +26,7 @@ MODERN_TRAIT_OBSERVATION_PLAN = DOCS_PLANS / "2026-06-16-modern-trait-observatio
 DEEP_REVIEW_PLAN = DOCS_PLANS / "2026-06-19-tvos-lifecycle-deep-review.md"
 CI_WORKFLOW = ROOT / ".github" / "workflows" / "check.yml"
 CODEQL_WORKFLOW = ROOT / ".github" / "workflows" / "codeql.yml"
+MAKE_WRAPPER = ROOT / "scripts" / "run-make.sh"
 SHARED_SCHEME = ROOT / "tvos-darkmode.xcodeproj" / "xcshareddata" / "xcschemes" / "tvos-darkmode.xcscheme"
 EXPECTED_WORKFLOW = """name: Check
 
@@ -57,7 +58,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Run baseline
-        run: make check
+        run: ./scripts/run-make.sh check
 
   xcode-test:
     runs-on: macos-15
@@ -70,7 +71,36 @@ jobs:
         with:
           persist-credentials: false
       - name: Run tvOS XCTest
-        run: make test
+        run: ./scripts/run-make.sh test
+"""
+EXPECTED_MAKE_WRAPPER = """#!/bin/sh
+set -eu
+
+SCRIPT_DIR=$(CDPATH='' cd -- "$(/usr/bin/dirname -- "$0")" && /bin/pwd -P)
+ROOT_DIR=$(CDPATH='' cd -- "$SCRIPT_DIR/.." && /bin/pwd -P)
+
+if [ "$#" -ne 1 ]; then
+  echo "usage: scripts/run-make.sh check|test" >&2
+  exit 64
+fi
+
+case $1 in
+  check|test)
+    target=$1
+    ;;
+  *)
+    echo "usage: scripts/run-make.sh check|test" >&2
+    exit 64
+    ;;
+esac
+
+exec /usr/bin/env \\
+  -u MAKEFILES \\
+  -u MAKEFLAGS \\
+  -u MFLAGS \\
+  -u MAKEOVERRIDES \\
+  -u GNUMAKEFLAGS \\
+  /usr/bin/make --no-print-directory -f "$ROOT_DIR/Makefile" "$target"
 """
 EXPECTED_CODEQL_WORKFLOW = """name: CodeQL
 
@@ -563,8 +593,10 @@ def check_manual_verification_docs():
 def check_ci_baseline_docs():
     require(CI_WORKFLOW.exists(), ".github/workflows/check.yml is missing")
     require(CODEQL_WORKFLOW.exists(), ".github/workflows/codeql.yml is missing")
+    require(MAKE_WRAPPER.exists(), "scripts/run-make.sh is missing")
     workflow = CI_WORKFLOW.read_text(encoding="utf-8")
     codeql_workflow = CODEQL_WORKFLOW.read_text(encoding="utf-8")
+    make_wrapper = MAKE_WRAPPER.read_text(encoding="utf-8")
     require(
         workflow == EXPECTED_WORKFLOW,
         "CI workflow must match the exact credential-free static and Xcode build contract",
@@ -572,6 +604,14 @@ def check_ci_baseline_docs():
     require(
         codeql_workflow == EXPECTED_CODEQL_WORKFLOW,
         "CodeQL workflow must match the exact pinned script and manual Swift build contract",
+    )
+    require(
+        make_wrapper == EXPECTED_MAKE_WRAPPER,
+        "trusted Make wrapper must match the exact fixed-target sanitized contract",
+    )
+    require(
+        MAKE_WRAPPER.stat().st_mode & 0o111,
+        "trusted Make wrapper must be executable",
     )
     makefile = read_text("Makefile")
     selector = read_text("scripts/select_tvos_destination.py")

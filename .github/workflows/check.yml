@@ -28,7 +28,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Run baseline
-        run: make check
+        run: ./scripts/run-make.sh check
 
   xcode-test:
     runs-on: macos-15
@@ -41,4 +41,4 @@ jobs:
         with:
           persist-credentials: false
       - name: Run tvOS XCTest
-        run: make test
+        run: ./scripts/run-make.sh test

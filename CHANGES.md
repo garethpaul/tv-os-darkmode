@@ -1,10 +1,15 @@
 # Changes
 
-- Hardened `make check` against Make-syntax interpreter injection, caller shell
-  replacement, non-executing flags, populated `MAKEFILES`, and root redirection;
-  rejected `MAKEFILE_LIST` root substitution, documented the remaining
-  startup/later-`-f` parse boundary, and preserved literal Python and tvOS
-  destination overrides.
+- Added a fixed `scripts/run-make.sh` entrypoint for hosted `check` and `test`
+  runs. It clears inherited Make control variables, rejects options,
+  assignments, extra targets, and alternate Makefiles, and invokes the physical
+  repository Makefile through fixed system tools. Regression tests reproduce
+  raw `--eval`, dry-run, ignore-errors, `GNUMAKEFLAGS`, `MAKEFILES`, and earlier
+  `-f` authority before proving the wrapper excludes those channels.
+- Hardened repository Make rules against Make-syntax interpreter injection,
+  caller shell replacement, visible non-executing flags, populated `MAKEFILES`,
+  `MAKEFILE_LIST` root substitution, and root redirection while preserving
+  literal Python and tvOS destination overrides.
 
 ## 2026-06-19
 

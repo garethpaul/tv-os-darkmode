@@ -16,6 +16,10 @@ flags could change what `make check` actually executed.
 - Reject caller `MAKEFLAGS` values that skip checks and stop verification when
   `MAKEFILES` is populated.
 - Reject command-line `MAKEFILE_LIST` values that redirect root derivation.
+- Route hosted static and XCTest Make invocations through a fixed wrapper that
+  accepts only the intended target and removes inherited Make control state.
+- Reproduce real `--eval`, dry-run, ignore-errors, `GNUMAKEFLAGS`, startup-file,
+  and earlier-`-f` authority before proving the wrapper blocks those paths.
 - Prove the behavior from both repository and external working directories.
 - Preserve Swift, tvOS, Xcode, destination, derived-data, and signing behavior.
 
@@ -24,18 +28,24 @@ flags could change what `make check` actually executed.
 - Added repository-owned Make authority variables and target-specific overrides.
 - Added adversarial tests for root, shell, Python, flags, Makefile identity, and
   startup makefiles.
+- Added `scripts/run-make.sh` with fixed root/tool resolution, an exact
+  `check|test` allowlist, sanitized Make environment, and a fixed Makefile path.
+- Changed both hosted Make invocations to use the wrapper.
 - Wired the authority suite into `make check` without changing app behavior.
 
 ## Verification
 
-- `make check` passes on portable hosts and reports Xcode skips truthfully.
-- External-directory `make -f /path/to/Makefile check` runs the same gates.
+- `./scripts/run-make.sh check` passes on portable hosts and reports Xcode
+  skips truthfully.
+- From an external working directory, `/path/to/scripts/run-make.sh check` runs
+  the same gates against the physical repository root.
 - Hosted Xcode remains authoritative for tvOS build and XCTest behavior.
 
 ## Scope Boundaries
 
 This change does not modify Swift source, UI behavior, accessibility behavior,
 project settings, schemes, workflows, SDK versions, publishing, or deployment.
-GNU Make evaluates startup files while parsing, before this Makefile can reject
-them. Caller-supplied later `-f` files and parse-time startup side effects remain
-outside the repository Make trust boundary.
+Direct Make remains caller authority. GNU Make evaluates startup files, earlier
+`-f` files, `--eval`, and execution-mode options before this Makefile can reject
+or diagnose them. The trusted boundary begins at `scripts/run-make.sh`; callers
+that execute code before the wrapper remain outside it.

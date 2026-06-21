@@ -41,7 +41,8 @@ Priority:
 - Keep focused tvOS 17 trait registration with a tvOS 12 through 16 fallback
 - Keep Reduce Motion behavior animation-free and retain maximum-contrast color pairs
 - Keep completed maintenance plans under `docs/plans`
-- Keep GitHub Actions running both portable contracts and hosted XCTest
+- Keep GitHub Actions running both portable contracts and hosted XCTest through
+  the fixed sanitized Make wrapper
 
 Next priorities:
 

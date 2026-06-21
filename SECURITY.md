@@ -34,6 +34,11 @@ Helpful reports include:
   timeouts, and immutable action revisions.
   Simulator launch, deployment, signing, or credentialed steps require a
   separate security review.
+- Hosted Make verification enters through `scripts/run-make.sh`, which accepts
+  only `check` or `test`, clears inherited GNU Make control variables, and
+  invokes the physical repository Makefile with fixed system tools. Direct
+  `make` invocation is caller authority because startup files, earlier `-f`
+  files, and options are processed before repository rules load.
 - The shared Makefile keeps hosted tests and compilation unsigned with
   `CODE_SIGNING_ALLOWED=NO`.
 
