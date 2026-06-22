@@ -21,10 +21,12 @@ CODEQL_PLAN = DOCS_PLANS / "2026-06-12-codeql-manual-swift-build.md"
 INITIAL_ANNOUNCEMENT_PLAN = DOCS_PLANS / "2026-06-13-initial-appearance-announcement.md"
 TRAIT_TRANSITION_PLAN = DOCS_PLANS / "2026-06-13-controller-trait-transition-rendering.md"
 ROOT_OVERRIDE_PLAN = DOCS_PLANS / "2026-06-14-make-root-override-protection.md"
+MAKE_AUTHORITY_PLAN = DOCS_PLANS / "2026-06-21-make-authority-hardening.md"
 MODERN_TRAIT_OBSERVATION_PLAN = DOCS_PLANS / "2026-06-16-modern-trait-observation.md"
 DEEP_REVIEW_PLAN = DOCS_PLANS / "2026-06-19-tvos-lifecycle-deep-review.md"
 CI_WORKFLOW = ROOT / ".github" / "workflows" / "check.yml"
 CODEQL_WORKFLOW = ROOT / ".github" / "workflows" / "codeql.yml"
+MAKE_WRAPPER = ROOT / "scripts" / "run-make.sh"
 SHARED_SCHEME = ROOT / "tvos-darkmode.xcodeproj" / "xcshareddata" / "xcschemes" / "tvos-darkmode.xcscheme"
 EXPECTED_WORKFLOW = """name: Check
 
@@ -56,7 +58,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Run baseline
-        run: make check
+        run: ./scripts/run-make.sh check
 
   xcode-test:
     runs-on: macos-15
@@ -69,7 +71,65 @@ jobs:
         with:
           persist-credentials: false
       - name: Run tvOS XCTest
-        run: make test
+        run: ./scripts/run-make.sh test
+"""
+EXPECTED_MAKE_WRAPPER = """#!/bin/sh
+set -eu
+
+case $0 in
+  /*) script_path=$0 ;;
+  *) script_path=$(/bin/pwd -P)/$0 ;;
+esac
+
+link_count=0
+while [ -L "$script_path" ]; do
+  link_count=$((link_count + 1))
+  if [ "$link_count" -gt 40 ]; then
+    echo "repository verification entrypoint has too many symbolic links" >&2
+    exit 66
+  fi
+
+  if ! link_target_with_sentinel=$(/usr/bin/readlink -n "$script_path" && printf x); then
+    echo "repository verification entrypoint could not read symbolic link" >&2
+    exit 66
+  fi
+  link_target=${link_target_with_sentinel%x}
+  case $link_target in
+    /*) script_path=$link_target ;;
+    *) script_path=$(/usr/bin/dirname "$script_path")/$link_target ;;
+  esac
+done
+
+if [ ! -f "$script_path" ]; then
+  echo "repository verification entrypoint did not resolve to a regular file" >&2
+  exit 66
+fi
+
+SCRIPT_DIR=$(CDPATH='' cd -P "$(/usr/bin/dirname "$script_path")" && /bin/pwd -P)
+ROOT_DIR=$(CDPATH='' cd -P "$SCRIPT_DIR/.." && /bin/pwd -P)
+
+if [ "$#" -ne 1 ]; then
+  echo "usage: scripts/run-make.sh check|test" >&2
+  exit 64
+fi
+
+case $1 in
+  check|test)
+    target=$1
+    ;;
+  *)
+    echo "usage: scripts/run-make.sh check|test" >&2
+    exit 64
+    ;;
+esac
+
+exec /usr/bin/env \\
+  -u MAKEFILES \\
+  -u MAKEFLAGS \\
+  -u MFLAGS \\
+  -u MAKEOVERRIDES \\
+  -u GNUMAKEFLAGS \\
+  /usr/bin/make --no-print-directory -f "$ROOT_DIR/Makefile" "$target"
 """
 EXPECTED_CODEQL_WORKFLOW = """name: CodeQL
 
@@ -183,6 +243,10 @@ def check_docs_plans():
     require(
         ROOT_OVERRIDE_PLAN.exists(),
         "docs/plans/2026-06-14-make-root-override-protection.md is missing",
+    )
+    require(
+        MAKE_AUTHORITY_PLAN.exists(),
+        "docs/plans/2026-06-21-make-authority-hardening.md is missing",
     )
     require(
         MODERN_TRAIT_OBSERVATION_PLAN.exists(),
@@ -558,8 +622,10 @@ def check_manual_verification_docs():
 def check_ci_baseline_docs():
     require(CI_WORKFLOW.exists(), ".github/workflows/check.yml is missing")
     require(CODEQL_WORKFLOW.exists(), ".github/workflows/codeql.yml is missing")
+    require(MAKE_WRAPPER.exists(), "scripts/run-make.sh is missing")
     workflow = CI_WORKFLOW.read_text(encoding="utf-8")
     codeql_workflow = CODEQL_WORKFLOW.read_text(encoding="utf-8")
+    make_wrapper = MAKE_WRAPPER.read_text(encoding="utf-8")
     require(
         workflow == EXPECTED_WORKFLOW,
         "CI workflow must match the exact credential-free static and Xcode build contract",
@@ -568,37 +634,52 @@ def check_ci_baseline_docs():
         codeql_workflow == EXPECTED_CODEQL_WORKFLOW,
         "CodeQL workflow must match the exact pinned script and manual Swift build contract",
     )
+    require(
+        make_wrapper == EXPECTED_MAKE_WRAPPER,
+        "trusted Make wrapper must match the exact fixed-target sanitized contract",
+    )
+    require(
+        MAKE_WRAPPER.stat().st_mode & 0o111,
+        "trusted Make wrapper must be executable",
+    )
     makefile = read_text("Makefile")
     selector = read_text("scripts/select_tvos_destination.py")
     selector_tests = read_text("tests/test_select_tvos_destination.py")
-    root_declaration = "override ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))"
+    root_declaration = "override ROOT := $(REPOSITORY_ROOT)"
     root_assignments = re.findall(
         r"^(?:override\s+)?ROOT\s*[:+?]?=", makefile, re.MULTILINE
     )
     require(
-        len(root_assignments) == 1 and makefile.count(root_declaration) == 1,
-        "Makefile must contain exactly one protected repository-root declaration",
+        len(root_assignments) == 1
+        and makefile.splitlines().count(root_declaration) == 1
+        and makefile.splitlines().count("$(PUBLIC_TARGETS): override ROOT := $(REPOSITORY_ROOT)") == 1,
+        "Makefile must contain the global and public-target protected repository-root declarations",
     )
     require(
-        makefile.count(
-            f"{root_declaration}\nPYTHON ?= python3\n"
-            "TVOS_DESTINATION ?=\n"
-            "DERIVED_DATA_PATH ?= $(ROOT)/.build/DerivedData"
-        )
-        == 1,
-        "Makefile must keep the protected root before configurable tools",
+        makefile.count("override REPOSITORY_MAKEFILE := $(lastword $(MAKEFILE_LIST))") == 1
+        and makefile.count("override REPOSITORY_ROOT := $(abspath $(dir $(REPOSITORY_MAKEFILE)))") == 1,
+        "Makefile must capture its own path before protecting the repository root",
     )
     for contract in (
-        ".PHONY: build check lint test verify",
+        ".PHONY: __repository-make-authority build check lint root-test test verify",
+        "override PYTHON := $(value PYTHON)",
+        "PYTHON must be a literal executable path, not Make syntax",
+        "override SHELL := /bin/sh",
+        "MAKEFLAGS must not be overridden for repository verification",
+        "MAKEFILES must be empty; repository verification requires this Makefile to be loaded alone",
+        "MAKEFILE_LIST must not be overridden",
+        "$(PUBLIC_TARGETS): override ROOT := $(REPOSITORY_ROOT)",
+        "root-test:",
+        '"$$ROOT/scripts/test-makefile-authority.sh"',
         "test: lint",
-        "verify: lint test build",
+        "verify: root-test lint test build",
         "check: verify",
-        '$(PYTHON) "$(ROOT)/scripts/check_tvos_contracts.py"',
+        '"$$PYTHON" "$$ROOT/scripts/check_tvos_contracts.py"',
         "TVOS_DESTINATION ?=",
         "DERIVED_DATA_PATH ?= $(ROOT)/.build/DerivedData",
         "scripts/select_tvos_destination.py",
-        "$(PYTHON) -m unittest discover",
-        'cd "$(ROOT)" && xcodebuild',
+        '"$$PYTHON" -m unittest discover',
+        'cd "$$ROOT" && xcodebuild',
         '-destination "generic/platform=tvOS Simulator"',
         '-destination "$$destination"',
         '-derivedDataPath "$(DERIVED_DATA_PATH)"',

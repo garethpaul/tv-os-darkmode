@@ -55,8 +55,8 @@ The project uses Swift 5 and has no third-party package dependencies.
 ## Running or Using the Project
 
 - Open `tvos-darkmode.xcodeproj` in Xcode, choose the app or sample scheme, and run it on the matching simulator/device.
-- Run `make check` for static repository checks, executable XCTest when Xcode
-  is available, and unsigned simulator compilation.
+- Run `./scripts/run-make.sh check` for static repository checks, executable
+  XCTest when Xcode is available, and unsigned simulator compilation.
 - GitHub Actions runs the portable contract gate on Ubuntu 24.04 and executes
   XCTest with Xcode 16.4 on macOS 15. Both jobs have read-only repository
   permissions, disabled checkout credential persistence, bounded timeouts, and
@@ -69,18 +69,28 @@ The project uses Swift 5 and has no third-party package dependencies.
 
 ## Testing and Verification
 
-- `make check` runs tvOS project, plist, asset, appearance-state, and
+- `./scripts/run-make.sh check` runs tvOS project, plist, asset,
+  appearance-state, and
   appearance-label accessibility, static-text trait, scaling, bounded-layout,
   accessibility-hint, display-only, root-view identifier, and contrast
   contract checks. It also enforces Swift 5, the tvOS 12 deployment floor,
   modern UIKit launch APIs, and hosted Xcode compilation.
+- The trusted wrapper accepts exactly `check` or `test`, resolves its physical
+  script through a bounded relative or absolute symlink chain, rejects broken
+  or overlong resolutions, then selects the adjacent repository Makefile with
+  fixed system tools. It clears `MAKEFILES`, `MAKEFLAGS`, `MFLAGS`,
+  `MAKEOVERRIDES`, and `GNUMAKEFLAGS`, and invokes fixed `/usr/bin/make` with no
+  caller-supplied options, assignments, or extra files.
+  Direct `make` commands remain caller authority: startup files, earlier `-f`
+  files, and options such as `--eval`, dry-run, or ignore-errors are processed
+  before the repository Makefile can validate them.
 - Static checks also require completed canonical plans under `docs/plans`.
-- `make test` executes resolver, announcement, initial controller hierarchy,
-  and bidirectional trait-transition rendering tests on the Apple TV 4K (3rd
-  generation) simulator available to the selected Xcode. It reuses the newest
-  installed matching device or creates one from the newest installed tvOS
-  runtime when a hosted runner has no pre-created simulator. Derived data stays
-  under the repository's ignored `.build` directory.
+- `./scripts/run-make.sh test` executes resolver, announcement, initial
+  controller hierarchy, and bidirectional trait-transition rendering tests on
+  the Apple TV 4K (3rd generation) simulator available to the selected Xcode.
+  It reuses the newest installed matching device or creates one from the newest
+  installed tvOS runtime when a hosted runner has no pre-created simulator.
+  Derived data stays under the repository's ignored `.build` directory.
 - Appearance changes use focused trait registration on tvOS 17 and later while
   preserving the `traitCollectionDidChange` fallback for the tvOS 12 floor.
 - A small transition state machine renders every changed appearance but only
@@ -161,6 +171,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   loaded-controller dark/light transition coverage.
 - See `docs/plans/2026-06-14-make-root-override-protection.md` for repository-
   anchored Make verification under hostile root assignments.
+- See `docs/plans/2026-06-21-make-authority-hardening.md` for interpreter,
+  shell, startup-file, execution-mode, and trusted-wrapper authority checks.
 - See `docs/plans/2026-06-16-modern-trait-observation.md` for focused modern
   appearance observation with the legacy deployment-floor fallback.
 - See `docs/plans/2026-06-19-tvos-lifecycle-deep-review.md` for scene lifecycle,
