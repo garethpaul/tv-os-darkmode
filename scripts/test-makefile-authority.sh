@@ -76,8 +76,10 @@ cat >"$startup_file" <<EOF
 \$(shell /usr/bin/touch '$startup_marker')
 override MAKEFILES :=
 EOF
-MAKEFILES="$startup_file" raw_make -f "$MAKEFILE" lint PYTHON="$fake_python" \
-  >"$TEMP_ROOT/raw-startup.out" 2>"$TEMP_ROOT/raw-startup.err"
+(
+  export MAKEFILES="$startup_file"
+  raw_make -f "$MAKEFILE" lint PYTHON="$fake_python"
+) >"$TEMP_ROOT/raw-startup.out" 2>"$TEMP_ROOT/raw-startup.err"
 if [ ! -e "$startup_marker" ]; then
   echo "raw MAKEFILES did not reproduce startup execution" >&2
   exit 1
