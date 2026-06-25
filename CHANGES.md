@@ -1,5 +1,53 @@
 # Changes
 
+## 2026-06-24 23:37 PDT - P2 - Preserve raw MAKEFILES reproduction
+
+### Summary
+
+Exported the hostile `MAKEFILES` fixture before the authority helper invokes
+raw Make so the startup-file regression behaves consistently across POSIX
+shells.
+
+### Work completed
+
+- Wrapped the raw Make invocation in a subshell with exported `MAKEFILES`.
+- Preserved the existing proof that the trusted wrapper clears inherited Make
+  startup authority.
+
+### Threads
+
+- None. The focused shell fixture and existing hosted evidence were sufficient.
+
+### Files changed
+
+- `scripts/test-makefile-authority.sh` — exported the startup fixture through
+  the helper boundary.
+- `CHANGES.md` — recorded this maintenance cycle.
+
+### Validation
+
+- `/bin/sh scripts/test-makefile-authority.sh` — passed.
+- `make check` — static contracts and three host tests passed; local Xcode
+  build and XCTest skipped because `xcodebuild` is unavailable.
+- Hosted `xcode-test`, static contracts, and CodeQL — passed at PR head
+  `225e3ff`.
+- Codex review — clean with no accepted or actionable findings before this
+  documentation-only cycle record.
+
+### Bugs / findings
+
+- Temporary environment assignments are not required to propagate through
+  shell functions, so the prior fixture could silently omit `MAKEFILES`.
+
+### Blockers
+
+- None.
+
+### Next action
+
+- Rerun Codex review and hosted checks on the documented head, then merge PR
+  #11 if both remain clean.
+
 - Added a fixed `scripts/run-make.sh` entrypoint for hosted `check` and `test`
   runs. It clears inherited Make control variables, rejects options,
   assignments, extra targets, and alternate Makefiles, and invokes the physical
