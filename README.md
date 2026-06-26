@@ -95,6 +95,9 @@ The project uses Swift 5 and has no third-party package dependencies.
   creation output fails before `xcodebuild` starts.
   Non-object `simctl list --json` roots fail through a stable selector error
   before runtime or device access.
+  Malformed `simctl` runtime, device, and device-type collections also fail
+  through stable selector errors before iteration instead of exposing Python
+  tracebacks.
   Derived data stays under the repository's ignored `.build` directory.
 - Appearance changes use focused trait registration on tvOS 17 and later while
   preserving the `traitCollectionDidChange` fallback for the tvOS 12 floor.
