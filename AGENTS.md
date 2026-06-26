@@ -51,6 +51,8 @@
 - See `VISION.md` for project direction and contribution guardrails.
 - See `docs/plans/2026-06-08-tvos-darkmode-baseline.md` for the canonical appearance-state baseline.
 - See `docs/plans/2026-06-08-manual-appearance-verification.md` for the manual light/dark verification checklist.
+- Simulator selection must not emit blank or non-string UDIDs; skip malformed
+  discovered devices and fail closed on empty `simctl create` output.
 
 ## Agent workflow
 

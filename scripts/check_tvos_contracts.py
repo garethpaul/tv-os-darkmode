@@ -691,13 +691,19 @@ def check_ci_baseline_docs():
         'DEVICE_NAME = "Apple TV 4K (3rd generation)"',
         '["xcrun", "simctl", "list", "--json"]',
         '["xcrun", "simctl", "create", name, device_type, runtime]',
-        'return f"platform=tvOS Simulator,id={device[\'udid\']}"',
+        "def normalize_udid(value):",
+        'udid = normalize_udid(device.get("udid"))',
+        'raise RuntimeError("created simulator returned no UDID")',
+        'return f"platform=tvOS Simulator,id={udid}"',
         'raise RuntimeError("no available tvOS simulator runtime is installed")',
     ):
         require(fragment in selector, f"simulator selector is missing: {fragment}")
     for test_name in (
         "test_uses_matching_device_from_newest_available_runtime",
         "test_creates_matching_device_when_runtime_has_no_device",
+        "test_ignores_matching_device_with_blank_udid_and_creates_replacement",
+        "test_ignores_matching_device_with_non_string_udid",
+        "test_rejects_invalid_created_device_udid",
         "test_rejects_missing_available_tvos_runtime",
     ):
         require(test_name in selector_tests, f"simulator selector test is missing: {test_name}")

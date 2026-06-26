@@ -1,5 +1,33 @@
 # Changes
 
+## 2026-06-25 - P1 - Validate tvOS simulator identifiers
+
+### Summary
+
+Prevented the hosted XCTest destination selector from emitting blank simulator
+identifiers and deferring the failure into `xcodebuild`.
+
+### Work completed
+
+- Added shared normalization for discovered and newly created simulator UDIDs.
+- Skipped matching devices whose identifier is missing, non-string, or blank.
+- Rejected empty `simctl create` output with a stable selector error.
+- Added portable regression tests and mutation-sensitive static contracts.
+
+### Validation
+
+- Both focused blank-ID selector tests failed before implementation; the final
+  matrix also covers non-string discovered and created identifiers.
+- `make check` covers the selector suite and repository static contracts; real
+  simulator creation remains a hosted macOS gate.
+- A hostile normalization mutation that restored blank identifier acceptance
+  was rejected by both focused regressions.
+
+### Bugs / findings
+
+- P1: malformed simulator metadata could produce
+  `platform=tvOS Simulator,id=` and obscure the root cause in `xcodebuild`.
+
 ## 2026-06-24 23:37 PDT - P2 - Preserve raw MAKEFILES reproduction
 
 ### Summary
