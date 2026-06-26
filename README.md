@@ -90,6 +90,9 @@ The project uses Swift 5 and has no third-party package dependencies.
   the Apple TV 4K (3rd generation) simulator available to the selected Xcode.
   It reuses the newest installed matching device or creates one from the newest
   installed tvOS runtime when a hosted runner has no pre-created simulator.
+  Blank or non-string simulator identifiers are never emitted as destinations;
+  existing entries with malformed identifiers are skipped and malformed
+  creation output fails before `xcodebuild` starts.
   Derived data stays under the repository's ignored `.build` directory.
 - Appearance changes use focused trait registration on tvOS 17 and later while
   preserving the `traitCollectionDidChange` fallback for the tvOS 12 floor.

@@ -15,6 +15,13 @@ def version_key(version):
     return tuple(int(component) for component in re.findall(r"\d+", version))
 
 
+def normalize_udid(value):
+    if not isinstance(value, str):
+        return None
+    normalized = value.strip()
+    return normalized or None
+
+
 def select_destination(payload, create_device):
     runtimes = [
         runtime
@@ -30,7 +37,9 @@ def select_destination(payload, create_device):
     devices = payload.get("devices", {}).get(runtime_identifier, [])
     for device in devices:
         if device.get("name") == DEVICE_NAME and device.get("isAvailable", True):
-            return f"platform=tvOS Simulator,id={device['udid']}"
+            udid = normalize_udid(device.get("udid"))
+            if udid is not None:
+                return f"platform=tvOS Simulator,id={udid}"
 
     device_type = next(
         (
@@ -43,7 +52,11 @@ def select_destination(payload, create_device):
     if device_type is None:
         raise RuntimeError(f"simulator device type is unavailable: {DEVICE_NAME}")
 
-    udid = create_device(CREATED_DEVICE_NAME, device_type, runtime_identifier)
+    udid = normalize_udid(
+        create_device(CREATED_DEVICE_NAME, device_type, runtime_identifier)
+    )
+    if udid is None:
+        raise RuntimeError("created simulator returned no UDID")
     return f"platform=tvOS Simulator,id={udid}"
 
 

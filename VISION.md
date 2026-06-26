@@ -38,6 +38,8 @@ Priority:
 - Keep dark and light controller hierarchy rendering covered by hosted XCTest
 - Keep loaded-controller dark-to-light and light-to-dark rendering covered by
   hosted XCTest
+- Keep tvOS simulator destination identifiers non-empty and validated before
+  invoking `xcodebuild`
 - Keep focused tvOS 17 trait registration with a tvOS 12 through 16 fallback
 - Keep Reduce Motion behavior animation-free and retain maximum-contrast color pairs
 - Keep completed maintenance plans under `docs/plans`

@@ -82,6 +82,97 @@ class SelectTVOSDestinationTests(unittest.TestCase):
             ],
         )
 
+    def test_ignores_matching_device_with_blank_udid_and_creates_replacement(self):
+        payload = {
+            "devices": {
+                "com.apple.CoreSimulator.SimRuntime.tvOS-18-5": [
+                    {
+                        "name": "Apple TV 4K (3rd generation)",
+                        "udid": "  ",
+                        "isAvailable": True,
+                    }
+                ],
+            },
+            "runtimes": [
+                {
+                    "identifier": "com.apple.CoreSimulator.SimRuntime.tvOS-18-5",
+                    "version": "18.5",
+                    "isAvailable": True,
+                }
+            ],
+            "devicetypes": [
+                {
+                    "name": "Apple TV 4K (3rd generation)",
+                    "identifier": "com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-4K",
+                }
+            ],
+        }
+
+        destination = select_destination(
+            payload,
+            create_device=lambda *_: "REPLACEMENT",
+        )
+
+        self.assertEqual(destination, "platform=tvOS Simulator,id=REPLACEMENT")
+
+    def test_ignores_matching_device_with_non_string_udid(self):
+        payload = {
+            "devices": {
+                "com.apple.CoreSimulator.SimRuntime.tvOS-18-5": [
+                    {
+                        "name": "Apple TV 4K (3rd generation)",
+                        "udid": 123,
+                        "isAvailable": True,
+                    }
+                ],
+            },
+            "runtimes": [
+                {
+                    "identifier": "com.apple.CoreSimulator.SimRuntime.tvOS-18-5",
+                    "version": "18.5",
+                    "isAvailable": True,
+                }
+            ],
+            "devicetypes": [
+                {
+                    "name": "Apple TV 4K (3rd generation)",
+                    "identifier": "com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-4K",
+                }
+            ],
+        }
+
+        destination = select_destination(
+            payload,
+            create_device=lambda *_: "REPLACEMENT",
+        )
+
+        self.assertEqual(destination, "platform=tvOS Simulator,id=REPLACEMENT")
+
+    def test_rejects_invalid_created_device_udid(self):
+        payload = {
+            "devices": {
+                "com.apple.CoreSimulator.SimRuntime.tvOS-18-5": [],
+            },
+            "runtimes": [
+                {
+                    "identifier": "com.apple.CoreSimulator.SimRuntime.tvOS-18-5",
+                    "version": "18.5",
+                    "isAvailable": True,
+                }
+            ],
+            "devicetypes": [
+                {
+                    "name": "Apple TV 4K (3rd generation)",
+                    "identifier": "com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-4K",
+                }
+            ],
+        }
+
+        for invalid_udid in (" \n", 123):
+            with self.subTest(invalid_udid=invalid_udid):
+                with self.assertRaisesRegex(RuntimeError, "created simulator returned no UDID"):
+                    select_destination(payload, create_device=lambda *_: invalid_udid)
+
     def test_rejects_missing_available_tvos_runtime(self):
         payload = {
             "devices": {},
