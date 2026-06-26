@@ -53,6 +53,8 @@
 - See `docs/plans/2026-06-08-manual-appearance-verification.md` for the manual light/dark verification checklist.
 - Simulator selection must not emit blank or non-string UDIDs; skip malformed
   discovered devices and fail closed on empty `simctl create` output.
+- Non-object `simctl list --json` roots must fail through a stable selector
+  error before runtime or device access.
 
 ## Agent workflow
 

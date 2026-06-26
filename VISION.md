@@ -40,6 +40,7 @@ Priority:
   hosted XCTest
 - Keep tvOS simulator destination identifiers non-empty and validated before
   invoking `xcodebuild`
+- Non-object `simctl list --json` roots fail before runtime or device access
 - Keep focused tvOS 17 trait registration with a tvOS 12 through 16 fallback
 - Keep Reduce Motion behavior animation-free and retain maximum-contrast color pairs
 - Keep completed maintenance plans under `docs/plans`

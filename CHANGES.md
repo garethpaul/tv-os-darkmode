@@ -1,5 +1,60 @@
 # Changes
 
+## 2026-06-26 06:20 PDT - P2 - Validate the simctl JSON root
+
+### Summary
+
+Rejected non-object `simctl list --json` roots before simulator runtime/device
+access so valid JSON schema drift cannot escape as a raw attribute traceback.
+Non-object `simctl list --json` roots fail before runtime or device access.
+
+### Work completed
+
+- Added table-driven regressions for JSON `null`, array, string, number, and
+  boolean roots.
+- Added one root-shape guard before the first payload access.
+- Added mutation-sensitive source ordering, fixture, guidance, and plan
+  contracts.
+- Synchronized contributor, public, security, and product guidance.
+
+### Threads
+
+- None; Swift lifecycle, simulator selection, Xcode workflows, plans, issues,
+  PRs, and recent hosted evidence were reviewed directly.
+
+### Files changed
+
+- `scripts/select_tvos_destination.py` — stable non-object root failure.
+- `tests/test_select_tvos_destination.py` — malformed-root regressions.
+- `scripts/check_tvos_contracts.py` — durable ordering and fixture contracts.
+- `AGENTS.md`, `README.md`, `SECURITY.md`, and `VISION.md` — maintained
+  behavior contract.
+- `docs/plans/2026-06-26-simctl-root-shape.md` — implementation record.
+
+### Validation
+
+- RED focused selector test — five malformed roots escaped as `AttributeError`.
+- GREEN focused selector test — all five now raise the stable `RuntimeError`.
+- `./scripts/run-make.sh check` — passed Make authority checks, eight static
+  contract groups, and all seven portable selector tests.
+- Seven isolated hostile source, ordering, regression, fixture, guidance, and
+  plan mutations — all rejected.
+- tvOS XCTest and simulator compilation — skipped because Xcode is unavailable
+  on Linux; hosted Xcode 16.4 remains required.
+
+### Bugs / findings
+
+- P2 reliability: valid JSON with a non-object root bypassed the selector's
+  controlled error path and could print a Python traceback in CI.
+
+### Blockers
+
+- Local Linux cannot run tvOS XCTest; hosted Xcode 16.4 remains required.
+
+### Next action
+
+- Complete exact-head review, hosted Xcode/CodeQL, and merge.
+
 ## 2026-06-25 - P1 - Validate tvOS simulator identifiers
 
 ### Summary
