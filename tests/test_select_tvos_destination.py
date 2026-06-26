@@ -4,6 +4,15 @@ from scripts.select_tvos_destination import select_destination
 
 
 class SelectTVOSDestinationTests(unittest.TestCase):
+    def test_rejects_non_object_simctl_root(self):
+        for payload in (None, [], "devices", 0, False):
+            with self.subTest(payload=payload):
+                with self.assertRaisesRegex(
+                    RuntimeError,
+                    "^simctl list response must be an object$",
+                ):
+                    select_destination(payload, create_device=lambda *_: self.fail())
+
     def test_uses_matching_device_from_newest_available_runtime(self):
         payload = {
             "devices": {

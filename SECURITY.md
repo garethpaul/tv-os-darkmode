@@ -44,6 +44,8 @@ Helpful reports include:
 - The tvOS destination selector accepts only non-empty string simulator UDIDs;
   discovery entries with malformed identifiers are skipped and empty creation
   output fails before constructing an `xcodebuild` destination.
+- Non-object `simctl list --json` roots fail through a stable selector error
+  before runtime or device access instead of exposing an attribute traceback.
 - The shared Makefile keeps hosted tests and compilation unsigned with
   `CODE_SIGNING_ALLOWED=NO`.
 

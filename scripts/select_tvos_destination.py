@@ -23,6 +23,9 @@ def normalize_udid(value):
 
 
 def select_destination(payload, create_device):
+    if not isinstance(payload, dict):
+        raise RuntimeError("simctl list response must be an object")
+
     runtimes = [
         runtime
         for runtime in payload.get("runtimes", [])

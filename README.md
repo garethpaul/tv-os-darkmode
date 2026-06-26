@@ -93,6 +93,8 @@ The project uses Swift 5 and has no third-party package dependencies.
   Blank or non-string simulator identifiers are never emitted as destinations;
   existing entries with malformed identifiers are skipped and malformed
   creation output fails before `xcodebuild` starts.
+  Non-object `simctl list --json` roots fail through a stable selector error
+  before runtime or device access.
   Derived data stays under the repository's ignored `.build` directory.
 - Appearance changes use focused trait registration on tvOS 17 and later while
   preserving the `traitCollectionDidChange` fallback for the tvOS 12 floor.
