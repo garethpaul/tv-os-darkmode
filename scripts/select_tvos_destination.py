@@ -22,13 +22,27 @@ def normalize_udid(value):
     return normalized or None
 
 
+def require_object(value, label):
+    if not isinstance(value, dict):
+        raise RuntimeError(f"simctl list {label} must be an object")
+    return value
+
+
+def require_object_list(value, label):
+    if not isinstance(value, list) or any(
+        not isinstance(item, dict) for item in value
+    ):
+        raise RuntimeError(f"simctl list {label} must be an array of objects")
+    return value
+
+
 def select_destination(payload, create_device):
     if not isinstance(payload, dict):
         raise RuntimeError("simctl list response must be an object")
 
     runtimes = [
         runtime
-        for runtime in payload.get("runtimes", [])
+        for runtime in require_object_list(payload.get("runtimes", []), "runtimes")
         if ".tvOS-" in runtime.get("identifier", "")
         and runtime.get("isAvailable", True)
     ]
@@ -37,7 +51,11 @@ def select_destination(payload, create_device):
 
     runtime = max(runtimes, key=lambda item: version_key(item.get("version", "0")))
     runtime_identifier = runtime["identifier"]
-    devices = payload.get("devices", {}).get(runtime_identifier, [])
+    devices_by_runtime = require_object(payload.get("devices", {}), "devices")
+    devices = require_object_list(
+        devices_by_runtime.get(runtime_identifier, []),
+        "devices for selected runtime",
+    )
     for device in devices:
         if device.get("name") == DEVICE_NAME and device.get("isAvailable", True):
             udid = normalize_udid(device.get("udid"))
@@ -47,7 +65,10 @@ def select_destination(payload, create_device):
     device_type = next(
         (
             item["identifier"]
-            for item in payload.get("devicetypes", [])
+            for item in require_object_list(
+                payload.get("devicetypes", []),
+                "devicetypes",
+            )
             if item.get("name") == DEVICE_NAME
         ),
         None,

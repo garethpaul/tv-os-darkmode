@@ -55,6 +55,8 @@
   discovered devices and fail closed on empty `simctl create` output.
 - Non-object `simctl list --json` roots must fail through a stable selector
   error before runtime or device access.
+- Malformed `simctl` runtime, device, and device-type collections must fail
+  through stable selector errors before iteration.
 
 ## Agent workflow
 

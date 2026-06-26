@@ -692,7 +692,15 @@ def check_ci_baseline_docs():
         '["xcrun", "simctl", "list", "--json"]',
         '["xcrun", "simctl", "create", name, device_type, runtime]',
         "def normalize_udid(value):",
+        "def require_object(value, label):",
+        "def require_object_list(value, label):",
         'raise RuntimeError("simctl list response must be an object")',
+        'raise RuntimeError(f"simctl list {label} must be an object")',
+        'raise RuntimeError(f"simctl list {label} must be an array of objects")',
+        'require_object_list(payload.get("runtimes", []), "runtimes")',
+        'require_object(payload.get("devices", {}), "devices")',
+        '"devices for selected runtime"',
+        'payload.get("devicetypes", [])',
         'udid = normalize_udid(device.get("udid"))',
         'raise RuntimeError("created simulator returned no UDID")',
         'return f"platform=tvOS Simulator,id={udid}"',
@@ -706,6 +714,7 @@ def check_ci_baseline_docs():
     )
     for test_name in (
         "test_rejects_non_object_simctl_root",
+        "test_rejects_malformed_simctl_collections",
         "test_uses_matching_device_from_newest_available_runtime",
         "test_creates_matching_device_when_runtime_has_no_device",
         "test_ignores_matching_device_with_blank_udid_and_creates_replacement",
@@ -718,10 +727,26 @@ def check_ci_baseline_docs():
         'for payload in (None, [], "devices", 0, False):' in selector_tests,
         "simulator selector root-shape test must preserve every JSON root fixture",
     )
+    for fixture in (
+        '{"runtimes": None}',
+        '{"runtimes": [1]}',
+        '"devices": None',
+        '"devicetypes": None',
+        '"devicetypes": [1]',
+    ):
+        require(
+            fixture in selector_tests,
+            f"simulator selector collection-shape test is missing fixture: {fixture}",
+        )
     for docs_file in ("AGENTS.md", "README.md", "VISION.md", "SECURITY.md", "CHANGES.md"):
         require(
             "Non-object `simctl list --json` roots" in read_text(docs_file),
             f"{docs_file} must document simctl root-shape validation",
+        )
+        require(
+            "Malformed `simctl` runtime, device, and device-type collections"
+            in read_text(docs_file),
+            f"{docs_file} must document simctl collection-shape validation",
         )
     require(
         "docs/plans/2026-06-14-make-root-override-protection.md" in read_text("README.md"),

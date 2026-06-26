@@ -13,6 +13,55 @@ class SelectTVOSDestinationTests(unittest.TestCase):
                 ):
                     select_destination(payload, create_device=lambda *_: self.fail())
 
+    def test_rejects_malformed_simctl_collections(self):
+        runtime = {
+            "identifier": "com.apple.CoreSimulator.SimRuntime.tvOS-18-5",
+            "version": "18.5",
+            "isAvailable": True,
+        }
+        cases = (
+            (
+                {"runtimes": None},
+                "simctl list runtimes must be an array of objects",
+            ),
+            (
+                {"runtimes": [1]},
+                "simctl list runtimes must be an array of objects",
+            ),
+            (
+                {"runtimes": [runtime], "devices": None},
+                "simctl list devices must be an object",
+            ),
+            (
+                {
+                    "runtimes": [runtime],
+                    "devices": {runtime["identifier"]: [1]},
+                },
+                "simctl list devices for selected runtime must be an array of objects",
+            ),
+            (
+                {
+                    "runtimes": [runtime],
+                    "devices": {runtime["identifier"]: []},
+                    "devicetypes": None,
+                },
+                "simctl list devicetypes must be an array of objects",
+            ),
+            (
+                {
+                    "runtimes": [runtime],
+                    "devices": {runtime["identifier"]: []},
+                    "devicetypes": [1],
+                },
+                "simctl list devicetypes must be an array of objects",
+            ),
+        )
+
+        for payload, message in cases:
+            with self.subTest(payload=payload):
+                with self.assertRaisesRegex(RuntimeError, f"^{message}$"):
+                    select_destination(payload, create_device=lambda *_: self.fail())
+
     def test_uses_matching_device_from_newest_available_runtime(self):
         payload = {
             "devices": {

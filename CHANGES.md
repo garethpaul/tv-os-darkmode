@@ -1,5 +1,69 @@
 # Changes
 
+## 2026-06-26 14:23 PDT - P2 - Validate simctl collection shapes
+
+### Summary
+
+Rejected malformed `simctl` runtime, device, and device-type collections before
+iteration so valid JSON schema drift cannot escape as raw Python type or
+attribute tracebacks.
+Malformed `simctl` runtime, device, and device-type collections now fail
+through stable selector errors before iteration.
+
+### Work completed
+
+- Added table-driven regressions for null and scalar collection containers and
+  entries.
+- Added narrow object-map and object-array validators at each traversed
+  collection boundary.
+- Added mutation-sensitive source, fixture, guidance, and plan contracts.
+- Synchronized contributor, public, security, and product guidance.
+
+### Threads
+
+- None; open PRs, issues, alerts, branches, plans, recent changes, simulator
+  selection, Make authority, and hosted workflow evidence were reviewed
+  directly.
+
+### Files changed
+
+- `scripts/select_tvos_destination.py` — stable nested collection failures.
+- `tests/test_select_tvos_destination.py` — malformed collection regressions.
+- `scripts/check_tvos_contracts.py` — durable source and fixture contracts.
+- `AGENTS.md`, `README.md`, `SECURITY.md`, and `VISION.md` — maintained
+  behavior contract.
+- `docs/plans/2026-06-26-simctl-collection-shape-design.md` — design record.
+- `docs/plans/2026-06-26-simctl-collection-shape.md` — implementation record.
+
+### Validation
+
+- RED focused selector test — six malformed collections escaped as raw
+  `TypeError` or `AttributeError` failures.
+- GREEN focused selector test — all six now raise stable `RuntimeError`
+  messages and all eight portable selector tests pass.
+- `./scripts/run-make.sh check` — passed Make authority checks, eight static
+  contract groups, and all eight portable selector tests.
+- Seven isolated hostile source, error-message, regression, fixture, guidance,
+  and plan mutations — all rejected.
+- Python compileall, diff whitespace validation, and current-tree gitleaks —
+  passed with no findings.
+- tvOS XCTest and simulator compilation — expected to skip because Xcode is
+  unavailable on Linux; hosted Xcode 16.4 remains required.
+
+### Bugs / findings
+
+- P2 reliability: valid JSON with malformed nested collection shapes bypassed
+  the selector's controlled error path and could print a Python traceback in
+  CI.
+
+### Blockers
+
+- Local Linux cannot run tvOS XCTest; hosted Xcode 16.4 remains required.
+
+### Next action
+
+- Complete exact-head review, hosted Xcode/CodeQL, and merge.
+
 ## 2026-06-26 06:20 PDT - P2 - Validate the simctl JSON root
 
 ### Summary
